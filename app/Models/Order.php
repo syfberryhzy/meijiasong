@@ -27,6 +27,8 @@ class Order extends Model
     const ORDER_FINISH_SEND = 41; //订单完成
     const ORDER_FINISH_CONFIRM = 42; //确认收货
 
+    protected $guarded = [];
+  
     public function user()
     {
         return $this->belongsTo(User::class);

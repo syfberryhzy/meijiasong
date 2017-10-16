@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\Category;
 use App\Models\Shelf;
 use App\Models\Product;
@@ -15,34 +13,91 @@ use App\Models\Balance;
 use App\Models\Pay;
 use App\Models\AdminConfig as Config;
 use Carbon\Carbon;
+use App\Policies\ConfigPolicy;
+use Auth;
 
 class WebController extends Controller
 {
+    public function __construct()
+    {
+        // $this->middleware('auth:api');
+    }
     #首页
     public function index()
     {
-        #商家logo,公告
-        #商品分类
         #商品列表
-        // $this->authorize('update', $user);
         $categories = Category::where('status', Category::ON)->where('id', '<>', Category::RECHARGE_ID)->with('shelf', 'shelf.product')->get()->toArray();
-        $min = collect($categories)->min('foo');
-        foreach ($categories as $key => $vo) {
-            foreach ($vo['shelf'] as $key2 => $pro) {
-                $categories[$key]['shelf'][$key2]['min_price'] = collect($pro['product'])->min('price');
-                $categories[$key]['shelf'][$key2]['max_sales'] = collect($pro['product'])->max('sales');
+        $datas = [];
+        foreach ($categories as $cate) {
+            $data['name'] = $cate['title'];
+            $data['description'] = $cate['description'];
+            $data['type'] = $cate['type'];
+            $food = [];
+            foreach ($cate['shelf'] as $key => $val) {
+                $product = $val['product'];
+                if (count($product) > 0) {
+                    $food['id'] = $val['id'];
+                    $food['name'] = $val['name'];
+                    $food['attributes'] = $val['attributes'];
+                    $food['image'] = config('app.url'). '/uploads/'. $val['image'][0];
+
+                    $food['info'] = $product[0]['content'];
+                    $food['Count'] = count($product);
+                    $food['price'] = collect($product)->min('price'); //最低价格
+                    $food['sellCount'] = collect($product)->sum('sales'); //销量之和
+                    $food['cate'] = array_map( function ($vo) {
+                        $cate['cate_id'] = $vo['id'];
+                        $cate['characters'] = $vo['characters'];
+                        $cate['price'] = $vo['price'];
+                        return $cate;
+                    }, $product);
+                    $data['food'][] = $food;
+                }
+            }
+            if (count($data['food']) > 0) {
+                $datas[] = $data;
             }
         }
-        // dd($categories);
-        return response()->json(['data' => $categories, 'status' => 1], 201);
+        if ($datas) {
+            return response()->json(['data' => $datas, 'status' => 1], 201);
+        }
+        return response()->json(['data' => [], 'status' => 0], 403);
     }
     /**
      * [onLogin description]
      * @return [type] [description]
      */
-    public function onLogin()
+    public function detail(Shelf $shelf)
     {
-        return 111;
+        $shelf = $shelf->load('product');
+        $product = $shelf['product'];
+        if (count($product) == 0) {
+            return response()->json(['data' => [], 'info' => '暂无商品上架', 'status' => 0], 403);
+        }
+        $shelf['image'] = array_map(function ($img) {
+            return config('app.url'). '/uploads/'. $img;
+        }, $shelf['image']);
+        $shelf['sellCount'] = collect($product)->sum('sales'); //销量之和
+        $min_price = collect($product)->min('price');
+        $max_price = collect($product)->max('price');
+
+        $shelf['price'] = $min_price . '-' . $max_price;
+        if ($min_price == $max_price) {
+            $shelf['price'] = $min_price;
+        }
+        $shelf['deductible'] = '';
+        $shelf['count'] = count($product);
+        $shelf['content'] = $product[0]['content'];
+        if ($product[0]['is_default'] == 1) {
+            $config = new ConfigPolicy();
+            $configPoints = $config->getPoints();
+            $point = $product[0]['points'];
+            $point = (!$point || $point == 0) ? 1 : $point;
+            $per = $point * $configPoints[1] / $configPoints[0];
+            $shelf['deductible'] = '可用'. $point .'积分抵扣'. $per . '元';
+        }
+
+        return response()->json(['data' => $shelf, 'status' => 1], 201);
     }
     /**
      * 充值中心
@@ -97,37 +152,34 @@ class WebController extends Controller
         return Carbon::parse('now')->between($first, $second);
     }
 
+    //商家信息
     public function shop()
     {
-        $shopname =  Config::find(Config::WEBNAME_ID)->value;
-        $opentimes =  Config::find(Config::OPENTIMES_ID)->value;
-        $sendtimes = Config::find(Config::SENDTIMES_ID)->value;
-        $address =  Config::find(Config::ADDRESS_ID)->value;
-        $tel =  Config::find(Config::SHOPTEL_ID)->value;
-        $sendmess =  Config::find(Config::SENDMESS_ID)->value;
-        $activity =  Config::find(Config::ACTIVITY_ID)->value;
-        $service =  Config::find(Config::SERVICE_ID)->value;
-        $standard =  Config::find(Config::STANDARD_ID)->value;
-        $pictures =  Config::find(Config::PICTURES_ID)->value;
-        $logo = config('app.url') . '/uploads/' . $pictures[0];
-        $pictures = count($pictures) > 3 ? array_splice($pictures, 1, 4) : $pictures;
-        $pic = array_map(function ($vo) {
-            return config('app.url') . '/uploads/' . $vo;
-        }, $pictures);
-        $data = [
-            'shopname' => $shopname,
-            'opentimes' => $opentimes,
-            'sendtimes' => $sendtimes,
-            'address'  => $address,
-            'tel'  => $tel,
-            'sendmess' => $sendmess,
-            'activity' => $activity,
-            'service' => $service,
-            'standard' => $standard,
-            'logo' => $logo,
-            'pictures' => $pic,
-        ];
+        $config = new ConfigPolicy();
+        $data = $config->shopInfo();
+        return response()->json([ 'data' => $data, 'info' => '', 'status' => 1], 201);
+    }
+
+    public function pays()
+    {
+        $pays = Pay::where('status', 1)->get()->pluck('name', 'id')->toArray();
+
+        $data = array_only($pays, 'name');
+        foreach ($pays as $key => $pay) {
+            $data[0][] = $key;
+            $data[1][] = $pay;
+        }
 
         return response()->json([ 'data' => $data, 'info' => '', 'status' => 1], 201);
+    }
+
+    public function notice()
+    {
+        $notice = Config::where('id', '>', Config::POINTS_ID)->orderBy('id', 'desc')->first()->toArray();
+        if ($notice) {
+            $notice['short_value'] = mb_substr($notice['value'], 0, 20, 'UTF-8') .'...';
+            return response()->json([ 'data' => $notice, 'info' => '', 'status' => 1], 201);
+        }
+        return response()->json([ 'data' => [], 'info' => '', 'status' => 0], 403);
     }
 }

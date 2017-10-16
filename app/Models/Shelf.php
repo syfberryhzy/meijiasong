@@ -8,6 +8,26 @@ use App\Models\Product;
 
 class Shelf extends Model
 {
+    protected $hidden = ['created_at', 'updated_at', 'status'];
+
+    public function setImageAttribute($pictures)
+    {
+        if (is_array($pictures)) {
+            $this->attributes['image'] = json_encode($pictures);
+        } else {
+            $this->attributes['image'] = $pictures;
+        }
+    }
+
+    public function getImageAttribute($pictures)
+    {
+        if (is_array(json_decode($pictures, true))) {
+            return json_decode($pictures, true);
+        } else {
+            return $pictures;
+        }
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);

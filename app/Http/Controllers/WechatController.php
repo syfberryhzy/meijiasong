@@ -4,41 +4,98 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\Pay;
 use EasyWeChat\Foundation\Application;
 use EasyWeChat\Payment\Order as PayOrder;
 use Carbon\Carbon;
+use Validator;
+use App\Events\OrderItemEvent;
 
 class WechatController extends Controller
 {
-    /*创建订单*/
-    public function create(Application $application, Order $order)
+    public function __construct()
     {
-
-
-        $attributes = [
-          'trade_type'       => 'JSAPI', // JSAPI，NATIVE，APP...
-          'body'             => $order['name'],
-          'detail'           => $order['attributes'],
-          'out_trade_no'     => config('wechat.app_id').config('wechat.app_id').Carbon::now(),
-          'total_fee'        => $order['total'] * 100, // 单位：分
-          'notify_url'       => config('app.url').'http://xxx.com/order-notify', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
-          'openid'           => '当前用户的 openid', // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
-          // ...
-        ];
-        $order = new PayOrder($attributes);
-        $payment = $application->payment;
-        dd($payment);
-        $this->prepay($payment);
+        $this->middleware('auth:api');
     }
-
-    /*统一下单*/
-    public function prepay($payment)
+    /**
+     * 添加订单
+     * @param  Request $request [description]
+     * @return [type]           [description]
+     */
+    public function store(Request $request)
     {
-        $result = $payment->prepare($order);
-        if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS') {
-            return $prepayId = $result->prepay_id;
+        $products = $request->products;
+        $type = $request->type; //充值=> 1，购物 => 2
+        $wxPay = Pay::PAY_WEIXIN_ID;
+        $pay_id = $request->type == 1 ?  $wxPay: $request->pay_id;
+        $data = array(
+            'amount' => $request->amount,
+            'total' => $request->total,
+            'pay_id' => $pay_id
+        );
+        #验证
+
+        //送货信息
+        if ($type == 2) {
+             $data['receiver'] = $request->receiver;
+             $data['phone'] = $request->phone;
+             $data['address'] = $request->address;
+             $data['remarks'] = $request->remarks;
+        }
+
+        $data['user_id'] = \Auth::user()->id;
+        $data['out_trade_no'] = config('wechat.app_id') . date("YmdHis") . rand(10, 99);
+        // $data['status'] = $pay_id == 3 ? 21 : 1;
+        $data['status'] = 1;
+        // $data['prepay_id'] = $pay_id == 2 ? $this->getPrepayId($request, $data['out_trade_no']) : '';
+        $data['prepay_id'] = '';
+
+        $order = Order::create($data);
+
+        // TODO 订单商品详情
+        event(new OrderItemEvent($products, $order, \Auth::user()));
+
+        // // TODO 生成订单金额分配
+        // event(new OrderEvent($order, $products, Auth::user()));
+
+        // TODO 生成订单之后 30 分钟执行 取消订单
+        // $cancelOrderJob = (new CancelOrder($order, Auth::user()))->delay(Carbon::now()->addMinutes(30));
+        // dispatch($cancelOrderJob);
+
+        return response()->json(['data' => $order, 'status' => 1], 201);
+    }
+    /**微信统一下单
+     * [getPrepayId description]
+     * @param  [type] $request  [description]
+     * @return [type]           [description]
+     */
+    public function getPrepayId($request, $out_trade_no)
+    {
+        $secret = config('wechat.secret');
+        $params = array(
+            'appid' => config('wechat.app_id'),
+            'mch_id' => config('wechat.mch_id'),
+            'nonce_str' => getNonceStr('32'),
+            'body' => $request->type == 1 ? '美家送充值卡' : '美家送购物消费',
+            'out_trade_no' => $out_trade_no,
+            'total_fee' => (int)($request->total * 100),
+            'spbill_create_ip' => $_SERVER['REMOTE_ADDR'],
+            'trade_type' => 'JSAPI',
+            'notify_url' => 'https://sharepay.mandokg.com/wechat/payment/notify',
+            'openid' => \Auth::user()->openid
+        );
+        $params['sign'] = makeSign($params);
+        $xml = toXml($params);
+        $url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
+        $res = fromXml(postXmlCurl($xml, $url, false, 6));
+        if ($res['return_code'] == 'SUCCESS') {
+            return $res['prepay_id'];
+        } else {
+            return response()->json(array('info' => $res['return_msg']), 400);
         }
     }
+
+
 
     // 支付结果通知
     public function handleNotify()

@@ -45,15 +45,9 @@ class UserPolicy
         return $currentUser->id == $user->id;
     }
 
-    /**
-     * Determine whether the user can delete the user.
-     *
-     * @param  \App\User  $user
-     * @param  \App\Models\User  $user
-     * @return mixed
-     */
-    public function delete(User $user, User $user)
+    #计算兑换积分
+    public function recharge(User $user, Order $orders)
     {
-        //
+
     }
 }

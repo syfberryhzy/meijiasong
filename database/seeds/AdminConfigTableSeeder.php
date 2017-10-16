@@ -38,7 +38,7 @@ class AdminConfigTableSeeder extends Seeder
         if (!$config->exists) {
             $config->fill([
                 'value' => '8:00-16:00',
-                'description'  => '每日配送时间'
+                'description'  => '120'
             ])->save();
         }
 
@@ -98,23 +98,60 @@ class AdminConfigTableSeeder extends Seeder
         if (!$config->exists) {
             $config->fill([
                 'value' => "0-5:100
-  5-10:300
-  10-15:500
-  15-50:1000",
+5-10:300
+10-15:500
+15-50:1000",
                 'description'  => '起送标准'
             ])->save();
         }
 
         $config = Config::firstOrNew([
-                'name' => '商家图片',
+                'name' => '商家LOGO',
         ]);
         if (!$config->exists) {
             $config->fill([
-                'value' => '["images\/37cd19fb30109b3819691194f862a1e4.png","images\/\u5fae\u4fe1\u56fe\u7247_20170901162108.jpg","images\/e9144930a96e6598b69fef1690434e40.jpeg","images\/fd9ed21764be8065fb97f7c11adab44a.jpeg"]',
+                'value' => 'images/9f4c35618f6c6938992c6d757691e980.png',
                 'description'  => '商家图片，第一张默认为logo图片'
             ])->save();
         }
 
+        $config = Config::firstOrNew([
+                'name' => '商家图片1',
+        ]);
+        if (!$config->exists) {
+            $config->fill([
+                'value' => 'images/20170901162108.jpg',
+                'description'  => '商家图片，第一张默认为logo图片'
+            ])->save();
+        }
 
+        $config = Config::firstOrNew([
+                'name' => '商家图片2',
+        ]);
+        if (!$config->exists) {
+            $config->fill([
+                'value' => 'images/bf7c4d508e6e3b015dc94591105ee574.jpeg'
+                'description'  => '商家图片，第一张默认为logo图片'
+            ])->save();
+        }
+
+        $config = Config::firstOrNew([
+                'name' => '商家图片3',
+        ]);
+        if (!$config->exists) {
+            $config->fill([
+                'value' => 'images/20170901162126.jpg',
+                'description'  => '商家图片，第一张默认为logo图片'
+            ])->save();
+        }
+        $config = Config::firstOrNew([
+                'name' => '商品抵扣比例',
+        ]);
+        if (!$config->exists) {
+            $config->fill([
+                'value' => '10:1',
+                'description'  => '积分:现金'
+            ])->save();
+        }
     }
 }

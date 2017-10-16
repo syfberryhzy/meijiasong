@@ -77,9 +77,7 @@ class ShelfController extends Controller
             $grid->id('ID')->sortable();
             $grid->name('商品名称');
             $grid->column('category.title', '所属分类');
-            $grid->image('图片')->display(function ($image) {
-                return '<img src="/uploads/' . $image . '" style="width:150px;">';
-            });
+            $grid->image('图片')->image();
             $grid->attributes('商品属性');
             $states = [
                 'on'  => ['value' => 1, 'text' => 'YES'],
@@ -123,7 +121,7 @@ class ShelfController extends Controller
             $form->text('name', '商品名称')->help('<br/> 分类为充值时，商品名称为充值金额，例如：50');
             $form->select('category_id', '所属分类')->options(Category::all()->pluck('title', 'id'));
             $form->text('attributes', '商品属性')->help('<br/> 该属性为单一属性');
-            $form->image('image', '上传图片');
+            $form->multipleImage('image', '上传图片');
             $states = [
                 'on'  => ['value' => 1, 'text' => 'YES', 'color' => 'success'],
                 'off' => ['value' => 0, 'text' => 'NO', 'color' => 'danger'],

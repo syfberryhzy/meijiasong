@@ -21,9 +21,10 @@ class CreateAddressesTable extends Migration
             $table->string('phone', 11)->comment('联系方式');
             $table->string('areas', 50)->comment('省市区');
             $table->string('details', 50)->comment('详细地址')->nullable();
-            $table->string('latitude', 50)->comment('经度');
             $table->string('longitude', 50)->comment('纬度');
+            $table->string('latitude', 50)->comment('经度');
             $table->tinyInteger('is_default')->comment('是否默认1=默认，0=不默认')->default(0);
+            $table->tinyInteger('status')->comment('状态1=默认，0=不默认')->default(0);
             $table->timestamps();
         });
     }

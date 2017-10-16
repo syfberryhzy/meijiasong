@@ -17,10 +17,14 @@ use Carbon\Carbon;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
     #个人中心首页
     public function index()
     {
-        $user = User::find(1);
+        $user = \Auth::user();
         return response()->json([ 'data' => $user, 'info' => '操作完成', 'status' => 1], 201);
     }
 
@@ -41,7 +45,7 @@ class UserController extends Controller
      */
     public function update(Request $request)
     {
-        $user = User::find(1);
+        $user = \Auth::user();
         if ($request->avatar) {
             $user->avatar = $request->avatar;
         }
@@ -67,8 +71,13 @@ class UserController extends Controller
      */
     public function integral()
     {
-        $integrals = Integral::where('user_id', 1)->orderby('id', 'desc')->get()->toArray();
-        return response()->json([ 'data' => $integrals, 'info' => '', 'status' => 1], 201);
+        $integrals = \Auth::user()->integrals;
+        foreach ($balances as $key => $vo) {
+            $dt = Carbon::parse($vo['created_at']);
+            $integrals[$key]['created_at'] = $dt->year . '-' . $dt->month . '-'. $dt->day;
+        }
+        $user_integral = number_format(\Auth::user()->integrals, 2);
+        return response()->json([ 'data' => $integrals, 'info' => '', 'status' => 1, 'integral' => $user_integral], 201);
     }
     /**
      * 余额明细
@@ -76,14 +85,13 @@ class UserController extends Controller
      */
     public function balance()
     {
-        $balances = Balance::where('user_id', 1)->orderby('id', 'desc')->get()->toArray();
+        $balances = \Auth::user()->balances;
         $carbon = new Carbon();
-
         foreach ($balances as $key => $vo) {
             $dt = Carbon::parse($vo['created_at']);
             $balances[$key]['created_at'] = $dt->year . '-' . $dt->month . '-'. $dt->day;
         }
-        $user_balance = '100.00';
-        return response()->json([ 'data' => $balances, 'info' => '', 'status' => 1], 201);
+        $user_balance = number_format(\Auth::user()->balance, 2);
+        return response()->json([ 'data' => $balances, 'info' => '', 'status' => 1, 'balance' => $user_balance], 201);
     }
 }

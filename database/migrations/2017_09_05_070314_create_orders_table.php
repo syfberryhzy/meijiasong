@@ -19,7 +19,7 @@ class CreateOrdersTable extends Migration
             $table->foreign('user_id')->references('id')->on('users');
             $table->integer('pay_id')->unsigned();
             $table->foreign('pay_id')->references('id')->on('pays');
-            $table->timestamps('send_time')->comment('送货时间');
+            $table->timestamp('send_time')->comment('送货时间');
             $table->decimal('amount', 10, 2)->comment('总计')->default('0.00');
             $table->decimal('discount', 10, 2)->comment('折扣')->default('0.00');
             $table->decimal('total', 10, 2)->comment('实际付款')->default('0.00');

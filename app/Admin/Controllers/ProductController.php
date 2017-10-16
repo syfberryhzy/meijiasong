@@ -89,7 +89,7 @@ class ProductController extends Controller
             ];
             $grid->status('显示 ？')->switch($states);
             $grid->is_default('积分抵扣？')->switch($states);
-            $grid->points('抵扣比例(现金:积分)');
+            $grid->points('抵扣积分');
 
             $grid->created_at('创建时间');
             $grid->exporter(new UserExporter());
@@ -138,8 +138,8 @@ class ProductController extends Controller
                 'on'  => ['value' => 1, 'text' => 'YES', 'color' => 'success'],
                 'off' => ['value' => 0, 'text' => 'NO', 'color' => 'danger'],
             ];
-            $form->switch('is_default', '抵扣积分？')->states($states);
-            $form->text('points', '抵扣比例')->default('1:1')->rules('regex:/^\d+:\d+$/')->help('<br/>1.如不抵扣积分，请忽略此比例<br/>2.<b>现金值:积分值</b> ==> 多少积分可以抵扣多少元');
+            $form->switch('is_default', '积分抵扣？')->states($states);
+            $form->number('points', '抵扣积分')->rules('regex:/^\d+?$/')->help('<br>[说明：每件商品允许抵扣的积分数量]<br/>[规则：]必须为正整数<br/>');
             $form->switch('status', '显 示 ？')->states($states);
         });
     }

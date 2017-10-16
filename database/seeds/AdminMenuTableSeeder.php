@@ -120,7 +120,7 @@ class AdminMenuTableSeeder extends Seeder
         ]);
         DB::table('admin_menu')->insert([
           // 'id'        => 21,
-          'parent_id' => 9,
+          'parent_id' => 8,
           'order'     => 22,
           'title'     => '商家配置',
           'icon'      => 'fa-map-signs',

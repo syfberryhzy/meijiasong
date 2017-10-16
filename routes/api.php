@@ -26,28 +26,37 @@ $router->put('/user', [
     'middleware' => 'auth:api'
 ]);
 $router->get('/index', 'WebController@index');
+$router->get('/detail/{shelf}', 'WebController@detail');
 $router->get('/recharge', 'WebController@recharge');
 $router->get('/shop', 'WebController@shop');
-$router->put('/recharge/{product}', 'OrderController@recharge');
+$router->get('/pays', 'WebController@pays');
+$router->get('/notice', 'WebController@notice');
 
-$router->get('/orders', 'OrderController@index');
-$router->get('/wechat', 'WechatController@create');
-$router->get('/orders/counts', 'OrderController@counts');
-$router->get('/orders/{order}', 'OrderController@show');
-$router->put('/orders/{order}', 'OrderController@update');
-
-
-$router->put('/orders/buy', 'OrderController@buy');
-
-// $router->get('/users', 'UserController@index');
-// $router->get('/users/{user}', 'UserController@show')->name('user_info');
-// $router->put('/users', 'UserController@update');
-$router->get('/users/integral', 'UserController@integral');
-$router->get('/users/balance', 'UserController@balance');
 
 
 $router->get('/address', 'AddressController@index');
 $router->post('/address', 'AddressController@create');
+$router->get('/address/default', 'AddressController@default');
 $router->get('/address/{address}', 'AddressController@show');
 $router->put('/address/{address}', 'AddressController@update');
 $router->delete('/address/{address}', 'AddressController@delete');
+
+$router->put('/recharge/{product}', 'OrderController@recharge');
+$router->get('/orders', 'OrderController@index');
+$router->get('/orders/counts', 'OrderController@counts');
+$router->post('/orders/integral', 'OrderController@getIntegral');
+$router->get('/orders/sendtimes', 'OrderController@getSendTimes');
+$router->get('/orders/{order}', 'OrderController@show');
+
+$router->put('/orders/{order}', 'OrderController@update');
+$router->put('/orders/buy', 'OrderController@buy');
+
+
+#微信支付
+$router->post('/wechat', 'WechatController@store');
+
+$router->get('/users', 'UserController@index');
+$router->get('/users/integral', 'UserController@integral');
+$router->get('/users/balance', 'UserController@balance');
+$router->get('/users/{user}', 'UserController@show');
+$router->put('/users', 'UserController@update');

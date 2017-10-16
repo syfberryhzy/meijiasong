@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Policies\UserPolicy;
+use App\Policies\ConfigPolicy;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Order;
@@ -14,6 +15,7 @@ use App\Models\Address;
 use App\Models\Integral;
 use App\Models\Balance;
 use App\Models\Pay;
+
 // use App\Http\Requests\AddressFormRequest;
 
 class AddressController extends Controller
@@ -56,14 +58,10 @@ class AddressController extends Controller
             'phone' => $request->phone,
             'areas' => $request->areas,
             'details' => $request->details,
+            'longitude' => $request->longitude,
+            'latitude' => $request->latitude
         ];
-        // AddressFormRequest
-        // $address = new Address();
-        // $address->receiver = $request->get('receiver');
-        // $address->phone = $request->get('phone');
-        // $address->areas = $request->get('areas');
-        // $address->details = $request->get('details');
-        // $address->save();
+
         if ($address = Address::create($data)) {
               return response()->json([ 'data' => $address, 'info' => '添加成功', 'status' => 1], 201);
         }
@@ -116,5 +114,20 @@ class AddressController extends Controller
             return response()->json([ 'data' => [], 'info' => '删除成功', 'status' => 1], 201);
         }
         return response()->json([ 'data' => $address, 'info' => '删除失败', 'status' => 0], 201);
+    }
+
+    public function default(Request $request)
+    {
+        #缓存
+        // $id = \Auth::user()->id;
+        $address = [];
+        $counts = Address::where('user_id', 1)->count();
+        if ($counts > 0) {
+            $address = Address::where('user_id', 1)->orderby('is_default', 'desc')->get();
+            // dd($address);
+            $configPolicy = new ConfigPolicy();
+            $address = $configPolicy->defaultAddress($address[0]);
+        }
+        return response()->json(['data' => $address, 'info' => '', 'status' => 1], 201);
     }
 }

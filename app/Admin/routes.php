@@ -27,4 +27,5 @@ Route::group([
     $router->post('/orders/order_menus/operate', 'OrderController@operate');
     $router->resource('/orders/order_items', OrderItemController::class);
     $router->resource('/config', ConfigController::class);
+    $router->resource('/gallery', GalleryController::class);
 });

@@ -22,7 +22,7 @@ class CreateProductsTable extends Migration
             $table->decimal('price', 10, 2)->comment('价格')->default('0.00');
             $table->tinyInteger('is_default')->comment('是否抵扣积分0/1')->default(1);
             $table->integer('sales')->comment('销量')->default(0);
-            $table->string('points')->comment('积分抵扣比例 现金:积分')->default('1:1');
+            $table->integer('points')->comment('抵扣积分')->default(10);
             $table->tinyInteger('status')->comment('状态')->default(1);
             $table->timestamps();
         });

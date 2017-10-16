@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Policies\ConfigPolicy;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -16,6 +17,11 @@ use App\Models\Pay;
 
 class OrderController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
     /**
      * 订单首页
      * @param  Request $request [description]
@@ -143,4 +149,30 @@ class OrderController extends Controller
             return '';
         }
     }
-}
+
+    public function getIntegral()
+    {
+        $products = array(
+          array('id' => 7, 'name' => '娃哈哈19升矿物质水', 'image' => '/assets/goods.png', 'price' => 22 , 'points' => 10, 'is_default' => 1,  'number' => '2'),
+          array('id' => 8, 'name' => '娃哈哈17升矿物质水', 'image' => '/assets/goods.png', 'price' => 15 , 'points' => 10, 'is_default' => 1,  'number' => '1'),
+          array('id' => 9, 'name' => '娃哈哈2升矿物质水', 'image' => '/assets/goods.png', 'price' => 35 , 'points' => 10, 'is_default' => 1,  'number' => '3')
+        );
+        // $products = Product::whereIn('id', array(1, 2, 3))->get()->toArray();
+        $user = auth()->user();
+        $configPolicy = new ConfigPolicy();
+
+        $datas = $configPolicy->getIntegral($user, $products);
+        if ($datas) {
+            return response()->json(['data' => $datas, 'info' => '', 'status' => 1], 201);
+        }
+        return response()->json(['data' => [], 'info' => '', 'status' => 0], 403);
+    }
+
+    public function getSendTimes()
+    {
+        $configPolicy = new ConfigPolicy();
+        $datas = $configPolicy->defaultSend();
+        return response()->json(['data' => $datas, 'info' => '', 'status' => 1], 201);
+    }
+
+  }
