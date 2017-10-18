@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://meijiasong.dev'),
+    'url' => env('APP_URL', 'http://meijiasong.mandokg.com'),
 
     /*
     |--------------------------------------------------------------------------

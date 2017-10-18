@@ -42,7 +42,8 @@ class WebController extends Controller
                     $food['image'] = config('app.url'). '/uploads/'. $val['image'][0];
 
                     $food['info'] = $product[0]['content'];
-                    $food['Count'] = count($product);
+                    $food['cateCount'] = count($product);
+                    $food['Count'] = 0;
                     $food['price'] = collect($product)->min('price'); //最低价格
                     $food['sellCount'] = collect($product)->sum('sales'); //销量之和
                     $food['cate'] = array_map( function ($vo) {
