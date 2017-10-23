@@ -170,6 +170,8 @@ return [
         //  Laravel\Passport\PassportServiceProvider::class,
         //  M809745357\MiniProgram\MiniProgramServiceProvider::class,
         Overtrue\LaravelWeChat\ServiceProvider::class,
+        // Overtrue\LaravelShoppingCart\ServiceProvider::class,
+        Gloudemans\Shoppingcart\ShoppingcartServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -227,7 +229,8 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
+        // 'ShoppingCart'  => Overtrue\LaravelShoppingCart\Facade::class,
+        'Cart' => Gloudemans\Shoppingcart\Facades\Cart::class,
     ],
 
 ];

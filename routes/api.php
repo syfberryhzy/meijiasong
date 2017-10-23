@@ -32,7 +32,12 @@ $router->get('/shop', 'WebController@shop');
 $router->get('/pays', 'WebController@pays');
 $router->get('/notice', 'WebController@notice');
 
-
+$router->get('/cart', 'CartController@index');
+$router->post('/cart/addcart', 'CartController@create');
+// $router->get('/address/default', 'AddressController@default');
+// $router->get('/address/{address}', 'AddressController@show');
+// $router->put('/address/{address}', 'AddressController@update');
+// $router->delete('/address/{address}', 'AddressController@delete');
 
 $router->get('/address', 'AddressController@index');
 $router->post('/address', 'AddressController@create');

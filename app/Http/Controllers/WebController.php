@@ -15,6 +15,8 @@ use App\Models\AdminConfig as Config;
 use Carbon\Carbon;
 use App\Policies\ConfigPolicy;
 use Auth;
+use Illuminate\Support\Facades\Cache;
+use Cart;
 
 class WebController extends Controller
 {
@@ -40,7 +42,6 @@ class WebController extends Controller
                     $food['name'] = $val['name'];
                     $food['attributes'] = $val['attributes'];
                     $food['image'] = config('app.url'). '/uploads/'. $val['image'][0];
-
                     $food['info'] = $product[0]['content'];
                     $food['cateCount'] = count($product);
                     $food['Count'] = 0;
@@ -50,7 +51,6 @@ class WebController extends Controller
                         $cate['cate_id'] = $vo['id'];
                         $cate['characters'] = $vo['characters'];
                         $cate['price'] = $vo['price'];
-                        return $cate;
                     }, $product);
                     $data['food'][] = $food;
                 }
@@ -64,6 +64,22 @@ class WebController extends Controller
         }
         return response()->json(['data' => [], 'status' => 0], 403);
     }
+
+    // 购物车
+    public function addCart()
+    {
+        Cart::instance('meijiasong')->add([
+          ['id' => '293ad', 'name' => 'Product 1', 'qty' => 1, 'price' => 10.00],
+          ['id' => '4832k', 'name' => 'Product 2', 'qty' => 1, 'price' => 10.00, 'options' => ['size' => 'large']]
+        ]);
+        // user_id, username , lists
+        Cart::instance('meijiasong')->store($user_id);
+
+        // Cart::instance('wishlist')->restore('syf');
+        // dd(Cart::instance('wishlist')->content());
+    }
+
+
     /**
      * [onLogin description]
      * @return [type] [description]
