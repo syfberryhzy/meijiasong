@@ -16,7 +16,7 @@ use Carbon\Carbon;
 use App\Policies\ConfigPolicy;
 use Auth;
 use Illuminate\Support\Facades\Cache;
-use Cart;
+use Cart as ShopCart;
 
 class WebController extends Controller
 {
@@ -24,6 +24,7 @@ class WebController extends Controller
     {
         // $this->middleware('auth:api');
     }
+
     #首页
     public function index()
     {
@@ -34,8 +35,9 @@ class WebController extends Controller
             $data['name'] = $cate['title'];
             $data['description'] = $cate['description'];
             $data['type'] = $cate['type'];
-            $food = [];
+            $data['food'] = [];
             foreach ($cate['shelf'] as $key => $val) {
+                $food = [];
                 $product = $val['product'];
                 if (count($product) > 0) {
                     $food['id'] = $val['id'];
@@ -44,25 +46,32 @@ class WebController extends Controller
                     $food['image'] = config('app.url'). '/uploads/'. $val['image'][0];
                     $food['info'] = $product[0]['content'];
                     $food['cateCount'] = count($product);
-                    $food['Count'] = 0;
+                    $food['Count'] = $this->shoppingCartItemCount($val['id']);
                     $food['price'] = collect($product)->min('price'); //最低价格
                     $food['sellCount'] = collect($product)->sum('sales'); //销量之和
                     $food['cate'] = array_map( function ($vo) {
                         $cate['cate_id'] = $vo['id'];
                         $cate['characters'] = $vo['characters'];
                         $cate['price'] = $vo['price'];
+                        return $cate;
                     }, $product);
                     $data['food'][] = $food;
                 }
             }
-            if (count($data['food']) > 0) {
-                $datas[] = $data;
-            }
+            $datas[] = $data;
         }
         if ($datas) {
             return response()->json(['data' => $datas, 'status' => 1], 201);
         }
         return response()->json(['data' => [], 'status' => 0], 403);
+    }
+
+    public function shoppingCartItemCount($id)
+    {
+        ShopCart::instance('meijiasong')->restore('user.1.cart');
+        $cart = ShopCart::instance('meijiasong')->content();
+        ShopCart::instance('meijiasong')->store('user.1.cart');
+        dd($cart);
     }
 
     // 购物车

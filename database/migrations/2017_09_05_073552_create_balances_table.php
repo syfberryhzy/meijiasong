@@ -15,10 +15,10 @@ class CreateBalancesTable extends Migration
     {
         Schema::create('balances', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->integer('order_id')->unsigned();
-            $table->foreign('order_id')->references('id')->on('orders');
+            $table->unsignedInteger('user_id');
+            // $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedInteger('order_id');
+            // $table->foreign('order_id')->references('id')->on('orders');
             $table->tinyInteger('type')->comment('余额增减 1=+,2=-')->default(1);
             $table->decimal('number', 10, 2)->comment('余额数值')->default(1.00);
             $table->decimal('before', 10, 2)->comment('之前余额')->default(0.00);
