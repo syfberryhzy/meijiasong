@@ -17,10 +17,10 @@ class CartController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth:api');
+        // $this->middleware('auth:api');
 
         $this->cart = ShopCart::instance('meijiasong');
-        $this->identifier = 'user.' . auth()->id() . '.cart';
+        $this->identifier = 'user.1.cart';
 
     }
 
@@ -54,12 +54,13 @@ class CartController extends Controller
             $options = [
                 'shelf_id' => $shelf->id,
                 'product_id' => $product->id,
+                'image' => asset('/uploads/' . $shelf->image[0])
             ]
         );
         $this->cart->store($this->identifier);
 
         $cacheKey = "{$this->identifier}.shelf.{$shelf->id}.product.{$product->id}";
-        Cache::tags(['shoppingcart'])->forever($cacheKey);
+        Cache::tags(['shoppingcart'])->forever($cacheKey, $data);
 
         return response($this->cart->content());
     }
