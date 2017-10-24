@@ -16,14 +16,15 @@ use Carbon\Carbon;
 use App\Policies\ConfigPolicy;
 use Auth;
 use Illuminate\Support\Facades\Cache;
-use Cart;
+use Cart as ShopCart;
 
 class WebController extends Controller
 {
     public function __construct()
     {
-        // $this->middleware('auth:api');
+        $this->middleware('auth:api');
     }
+
     #首页
     public function index()
     {
@@ -34,8 +35,9 @@ class WebController extends Controller
             $data['name'] = $cate['title'];
             $data['description'] = $cate['description'];
             $data['type'] = $cate['type'];
-            $food = [];
+            $data['food'] = [];
             foreach ($cate['shelf'] as $key => $val) {
+                $food = [];
                 $product = $val['product'];
                 if (count($product) > 0) {
                     $food['id'] = $val['id'];
@@ -44,20 +46,19 @@ class WebController extends Controller
                     $food['image'] = config('app.url'). '/uploads/'. $val['image'][0];
                     $food['info'] = $product[0]['content'];
                     $food['cateCount'] = count($product);
-                    $food['Count'] = 0;
+                    $food['Count'] = $this->shoppingCartItemCount($val['id'], $product);
                     $food['price'] = collect($product)->min('price'); //最低价格
                     $food['sellCount'] = collect($product)->sum('sales'); //销量之和
                     $food['cate'] = array_map( function ($vo) {
                         $cate['cate_id'] = $vo['id'];
                         $cate['characters'] = $vo['characters'];
                         $cate['price'] = $vo['price'];
+                        return $cate;
                     }, $product);
                     $data['food'][] = $food;
                 }
             }
-            if (count($data['food']) > 0) {
-                $datas[] = $data;
-            }
+            $datas[] = $data;
         }
         if ($datas) {
             return response()->json(['data' => $datas, 'status' => 1], 201);
@@ -65,24 +66,33 @@ class WebController extends Controller
         return response()->json(['data' => [], 'status' => 0], 403);
     }
 
-    // 购物车
-    public function addCart()
+    /**
+     * [shoppingCartItemCount description]
+     * @param  [type] $id       [description]
+     * @param  [type] $products [description]
+     * @return [type]           [description]
+     */
+    private function shoppingCartItemCount($id, $products)
     {
-        Cart::instance('meijiasong')->add([
-          ['id' => '293ad', 'name' => 'Product 1', 'qty' => 1, 'price' => 10.00],
-          ['id' => '4832k', 'name' => 'Product 2', 'qty' => 1, 'price' => 10.00, 'options' => ['size' => 'large']]
-        ]);
-        // user_id, username , lists
-        Cart::instance('meijiasong')->store($user_id);
+        $store = 'user.' . auth()->id() . '.cart';
+        ShopCart::instance('meijiasong')->restore($store);
+        $cart = ShopCart::instance('meijiasong')->content();
+        $qty = 0;
+        foreach ($products as $product) {
+            $rowId = $cart->search(function ($cartItem, $rowId) use ($id, $product) {
+            	return $cartItem->options->shelf_id === $id && $cartItem->options->product_id == $product['id'];
+            });
+            $qty += $rowId ? ShopCart::get($rowId)->qty : 0;
+        }
 
-        // Cart::instance('wishlist')->restore('syf');
-        // dd(Cart::instance('wishlist')->content());
+        ShopCart::instance('meijiasong')->store($store);
+        return $qty;
     }
 
-
     /**
-     * [onLogin description]
-     * @return [type] [description]
+     * [detail description]
+     * @param  Shelf  $shelf [description]
+     * @return [type]        [description]
      */
     public function detail(Shelf $shelf)
     {

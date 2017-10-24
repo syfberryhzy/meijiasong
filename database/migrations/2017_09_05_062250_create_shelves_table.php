@@ -15,8 +15,8 @@ class CreateShelvesTable extends Migration
     {
         Schema::create('shelves', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('category_id')->unsigned();
-            $table->foreign('category_id')->references('id')->on('categories');
+            $table->unsignedInteger('category_id');
+            // $table->foreign('category_id')->references('id')->on('categories');
             $table->string('name', 45)->comment('商品名称')->nullable();
             $table->string('attributes')->comment('规格属性');
             $table->string('image')->comment('图片');

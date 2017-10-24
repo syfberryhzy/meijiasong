@@ -130,7 +130,7 @@ class AdminConfigTableSeeder extends Seeder
         ]);
         if (!$config->exists) {
             $config->fill([
-                'value' => 'images/bf7c4d508e6e3b015dc94591105ee574.jpeg'
+                'value' => 'images/bf7c4d508e6e3b015dc94591105ee574.jpeg',
                 'description'  => '商家图片，第一张默认为logo图片'
             ])->save();
         }

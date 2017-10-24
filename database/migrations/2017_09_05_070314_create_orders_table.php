@@ -15,10 +15,10 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->integer('pay_id')->unsigned();
-            $table->foreign('pay_id')->references('id')->on('pays');
+            $table->unsignedInteger('user_id');
+            // $table->foreign('user_id')->references('id')->on('users');
+            $table->unsignedInteger('pay_id');
+            // $table->foreign('pay_id')->references('id')->on('pays');
             $table->timestamp('send_time')->comment('送货时间');
             $table->decimal('amount', 10, 2)->comment('总计')->default('0.00');
             $table->decimal('discount', 10, 2)->comment('折扣')->default('0.00');

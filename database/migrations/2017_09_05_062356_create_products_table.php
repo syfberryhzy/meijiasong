@@ -15,8 +15,8 @@ class CreateProductsTable extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('shelf_id')->unsigned();
-            $table->foreign('shelf_id')->references('id')->on('shelves');
+            $table->unsignedInteger('shelf_id');
+            // $table->foreign('shelf_id')->references('id')->on('shelves');
             $table->string('characters')->comment('对应属性');
             $table->text('content')->comment('简介');
             $table->decimal('price', 10, 2)->comment('价格')->default('0.00');
