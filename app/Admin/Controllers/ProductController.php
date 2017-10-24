@@ -84,8 +84,8 @@ class ProductController extends Controller
             $grid->sales('销量');
             $grid->content('商品说明');
             $states = [
-                'on'  => ['value' => 1, 'text' => 'YES'],
-                'off' => ['value' => 0, 'text' => 'NO'],
+                'on'  => ['value' => 1, 'text' => 'YES', 'color' => 'success'],
+                'off' => ['value' => 0, 'text' => 'NO', 'color' => 'danger'],
             ];
             $grid->status('显示 ？')->switch($states);
             $grid->is_default('积分抵扣？')->switch($states);

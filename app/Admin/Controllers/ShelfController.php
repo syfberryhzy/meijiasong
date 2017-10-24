@@ -79,11 +79,16 @@ class ShelfController extends Controller
             $grid->column('category.title', '所属分类');
             $grid->image('图片')->image();
             $grid->attributes('商品属性');
+            // $states = [
+            //     'on'  => ['value' => 1, 'text' => 'Yes', 'color' => 'success'],
+            //     'off' => ['value' => 0, 'text' => 'No', 'color' => 'danger'],
+            // ];
+            // $grid->column('status', '上架？')->switch($states);
             $states = [
-                'on'  => ['value' => 1, 'text' => 'YES'],
-                'off' => ['value' => 0, 'text' => 'NO'],
+                'on'  => ['value' => 1, 'text' => 'Yes', 'color' => 'success'],
+                'off' => ['value' => 0, 'text' => 'No', 'color' => 'danger'],
             ];
-            $grid->status('上架？')->switch($states);
+            $grid->status('显示？')->switch($states);
             $grid->created_at('创建时间');
         });
     }
@@ -126,7 +131,7 @@ class ShelfController extends Controller
                 'on'  => ['value' => 1, 'text' => 'YES', 'color' => 'success'],
                 'off' => ['value' => 0, 'text' => 'NO', 'color' => 'danger'],
             ];
-            $form->switch('status', '上  架 ？ ')->states($states);
+            $form->select('status', '上  架 ？ ')->options([1 => '是', 0 => '否']);
         });
     }
 }

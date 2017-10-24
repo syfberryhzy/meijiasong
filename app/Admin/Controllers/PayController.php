@@ -77,8 +77,8 @@ class PayController extends Controller
             $grid->name('支付方式');
             $grid->description('说明');
             $states = [
-                'on'  => ['value' => 1, 'text' => 'YES'],
-                'off' => ['value' => 0, 'text' => 'NO'],
+                'on'  => ['value' => 1, 'text' => 'YES', 'color' => 'success'],
+                'off' => ['value' => 0, 'text' => 'NO', 'color' => 'danger'],
             ];
             $grid->status('启用 ？')->switch($states);
             $grid->is_deductible('抵扣积分？')->switch($states);

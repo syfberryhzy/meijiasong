@@ -8,7 +8,8 @@ use App\Models\Product;
 
 class Shelf extends Model
 {
-    protected $hidden = ['created_at', 'updated_at', 'status'];
+    public $fillable = ['category_id', 'name', 'attributes', 'image', 'status'];
+    protected $hidden = ['created_at', 'updated_at'];
 
     public function setImageAttribute($pictures)
     {

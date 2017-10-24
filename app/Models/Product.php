@@ -7,7 +7,7 @@ use App\Models\Shelf;
 
 class Product extends Model
 {
-    protected $hidden = ['created_at', 'updated_at', 'status'];
+    protected $hidden = ['created_at', 'updated_at'];
     public function shelf()
     {
         return $this->belongsTo(Shelf::class);
