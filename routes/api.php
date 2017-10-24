@@ -33,7 +33,7 @@ $router->get('/pays', 'WebController@pays');
 $router->get('/notice', 'WebController@notice');
 
 $router->get('/cart', 'CartController@index');
-$router->put('/cart', 'CartController@update');
+$router->put('/cart/{shelf}/{product}', 'CartController@update');
 $router->post('/cart/{shelf}/{product}', 'CartController@create');
 $router->delete('/cart/{shelf}/{product}', 'CartController@destory');
 // $router->get('/address/default', 'AddressController@default');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Cart;
 use App\Models\Shelf;
 use App\Models\Product;
@@ -16,10 +17,10 @@ class CartController extends Controller
 
     public function __construct()
     {
-        // $this->middleware('auth:api');
+        $this->middleware('auth:api');
 
         $this->cart = ShopCart::instance('meijiasong');
-        $this->identifier = 'user.1.cart';
+        $this->identifier = 'user.' . auth()->id() . '.cart';
 
     }
 
@@ -57,6 +58,9 @@ class CartController extends Controller
         );
         $this->cart->store($this->identifier);
 
+        $cacheKey = "{$this->identifier}.shelf.{$shelf->id}.product.{$product->id}";
+        Cache::tags(['shoppingcart'])->forever($cacheKey);
+
         return response($this->cart->content());
     }
 
@@ -65,15 +69,24 @@ class CartController extends Controller
      *
      * @return [type]           [description]
      */
-    public function update()
+    public function update(Shelf $shelf, Product $product)
     {
         $data = request()->validate([
-            'rowId' => 'required',
             'qty' => 'required'
         ]);
 
         $this->cart->restore($this->identifier);
-        $this->cart->update($data['rowId'], ['qty' => $data['qty']]);
+
+        $cacheKey = "{$this->identifier}.shelf.{$shelf->id}.product.{$product->id}";
+        $rowId = Cache::tags(['shoppingcart'])->get($cacheKey);
+
+        if ((int)$data['qty'] === 0) {
+            Cache::forget($cacheKey);
+            $this->cart->remove($rowId);
+        } else {
+            $this->cart->update($rowId, ['qty' => (int)$data['qty']]);
+        }
+
         $this->cart->store($this->identifier);
 
         return response($this->cart->content());
@@ -86,6 +99,7 @@ class CartController extends Controller
      */
     public function destory()
     {
+        Cache::tags('shoppingcart')->flush();
         $this->cart->destroy();
     }
 }

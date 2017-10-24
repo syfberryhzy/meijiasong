@@ -22,7 +22,7 @@ class WebController extends Controller
 {
     public function __construct()
     {
-        // $this->middleware('auth:api');
+        $this->middleware('auth:api');
     }
 
     #首页
@@ -46,7 +46,7 @@ class WebController extends Controller
                     $food['image'] = config('app.url'). '/uploads/'. $val['image'][0];
                     $food['info'] = $product[0]['content'];
                     $food['cateCount'] = count($product);
-                    $food['Count'] = $this->shoppingCartItemCount($val['id']);
+                    $food['Count'] = $this->shoppingCartItemCount($val['id'], $product);
                     $food['price'] = collect($product)->min('price'); //最低价格
                     $food['sellCount'] = collect($product)->sum('sales'); //销量之和
                     $food['cate'] = array_map( function ($vo) {
@@ -66,32 +66,33 @@ class WebController extends Controller
         return response()->json(['data' => [], 'status' => 0], 403);
     }
 
-    public function shoppingCartItemCount($id)
+    /**
+     * [shoppingCartItemCount description]
+     * @param  [type] $id       [description]
+     * @param  [type] $products [description]
+     * @return [type]           [description]
+     */
+    private function shoppingCartItemCount($id, $products)
     {
-        ShopCart::instance('meijiasong')->restore('user.1.cart');
+        $store = 'user.' . auth()->id() . '.cart';
+        ShopCart::instance('meijiasong')->restore($store);
         $cart = ShopCart::instance('meijiasong')->content();
-        ShopCart::instance('meijiasong')->store('user.1.cart');
-        dd($cart);
+        $qty = 0;
+        foreach ($products as $product) {
+            $rowId = $cart->search(function ($cartItem, $rowId) use ($id, $product) {
+            	return $cartItem->options->shelf_id === $id && $cartItem->options->product_id == $product['id'];
+            });
+            $qty += $rowId ? ShopCart::get($rowId)->qty : 0;
+        }
+
+        ShopCart::instance('meijiasong')->store($store);
+        return $qty;
     }
-
-    // 购物车
-    public function addCart()
-    {
-        Cart::instance('meijiasong')->add([
-          ['id' => '293ad', 'name' => 'Product 1', 'qty' => 1, 'price' => 10.00],
-          ['id' => '4832k', 'name' => 'Product 2', 'qty' => 1, 'price' => 10.00, 'options' => ['size' => 'large']]
-        ]);
-        // user_id, username , lists
-        Cart::instance('meijiasong')->store($user_id);
-
-        // Cart::instance('wishlist')->restore('syf');
-        // dd(Cart::instance('wishlist')->content());
-    }
-
 
     /**
-     * [onLogin description]
-     * @return [type] [description]
+     * [detail description]
+     * @param  Shelf  $shelf [description]
+     * @return [type]        [description]
      */
     public function detail(Shelf $shelf)
     {
