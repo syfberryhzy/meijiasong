@@ -27,7 +27,7 @@ class AddressController extends Controller
      */
     public function index()
     {
-        $address = Address::where('user_id', 1)->orderby('is_default', 'desc')->orderby('id', 'desc')->get()->toArray();
+        $address = Address::where('user_id', 1)->orderby('is_default', 'desc')->get()->toArray();
         return response()->json([ 'data' => $address, 'info' => '操作完成', 'status' => 1], 201);
     }
 

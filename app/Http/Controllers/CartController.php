@@ -17,11 +17,8 @@ class CartController extends Controller
 
     public function __construct()
     {
-        // $this->middleware('auth:api');
-
+        $this->middleware('auth:api');
         $this->cart = ShopCart::instance('meijiasong');
-        $this->identifier = 'user.1.cart';
-
     }
 
     /**
@@ -31,9 +28,14 @@ class CartController extends Controller
      */
     public function index()
     {
-        $this->cart->restore($this->identifier);
-        $this->cart->store($this->identifier);
-        return response($this->cart->content());
+        $identifier = 'user.'.auth()->id().'.cart';
+        $this->cart->restore($identifier);
+        $this->cart->store($identifier);
+        return response([
+            'data' => $this->cart->content(),
+            'count' => $this->cart->count(),
+            'price' => $this->cart->subtotal
+        ]);
     }
 
     /**
@@ -45,7 +47,8 @@ class CartController extends Controller
      */
     public function create(Shelf $shelf, Product $product)
     {
-        $this->cart->restore($this->identifier);
+        $identifier = 'user.'.auth()->id().'.cart';
+        $this->cart->restore($identifier);
         $data = $this->cart->add(
             $product->id,
             $shelf->name . "( {$product->characters} )",
@@ -57,10 +60,10 @@ class CartController extends Controller
                 'image' => asset('/uploads/' . $shelf->image[0])
             ]
         );
-        $this->cart->store($this->identifier);
+        $this->cart->store($identifier);
 
-        $cacheKey = "{$this->identifier}.shelf.{$shelf->id}.product.{$product->id}";
-        Cache::tags(['shoppingcart'])->forever($cacheKey, $data);
+        $cacheKey = "{$identifier}.shelf.{$shelf->id}.product.{$product->id}";
+        Cache::tags(['shoppingcart'])->forever($cacheKey, $data->rowId);
 
         return response($this->cart->content());
     }
@@ -76,19 +79,20 @@ class CartController extends Controller
             'qty' => 'required'
         ]);
 
-        $this->cart->restore($this->identifier);
+        $identifier = 'user.'.auth()->id().'.cart';
+        $this->cart->restore($identifier);
 
-        $cacheKey = "{$this->identifier}.shelf.{$shelf->id}.product.{$product->id}";
+        $cacheKey = "{$identifier}.shelf.{$shelf->id}.product.{$product->id}";
         $rowId = Cache::tags(['shoppingcart'])->get($cacheKey);
 
-        if ((int)$data['qty'] === 0) {
+        if ($data['qty'] == 0) {
             Cache::forget($cacheKey);
             $this->cart->remove($rowId);
         } else {
             $this->cart->update($rowId, ['qty' => (int)$data['qty']]);
         }
 
-        $this->cart->store($this->identifier);
+        $this->cart->store($identifier);
 
         return response($this->cart->content());
     }
@@ -101,6 +105,8 @@ class CartController extends Controller
     public function destory()
     {
         Cache::tags('shoppingcart')->flush();
+        $identifier = 'user.'.auth()->id().'.cart';
+        $this->cart->restore($identifier);
         $this->cart->destroy();
     }
 }

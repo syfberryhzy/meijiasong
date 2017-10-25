@@ -35,7 +35,7 @@ $router->get('/notice', 'WebController@notice');
 $router->get('/cart', 'CartController@index');
 $router->put('/cart/{shelf}/{product}', 'CartController@update');
 $router->post('/cart/{shelf}/{product}', 'CartController@create');
-$router->delete('/cart/{shelf}/{product}', 'CartController@destory');
+$router->delete('/cart', 'CartController@destory');
 // $router->get('/address/default', 'AddressController@default');
 // $router->get('/address/{address}', 'AddressController@show');
 // $router->put('/address/{address}', 'AddressController@update');

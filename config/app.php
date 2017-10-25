@@ -167,7 +167,7 @@ return [
         /*
          * Package Service Providers...
          */
-        //  Laravel\Passport\PassportServiceProvider::class,
+         Laravel\Passport\PassportServiceProvider::class,
         //  M809745357\MiniProgram\MiniProgramServiceProvider::class,
         Overtrue\LaravelWeChat\ServiceProvider::class,
         // Overtrue\LaravelShoppingCart\ServiceProvider::class,

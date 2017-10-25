@@ -22,7 +22,7 @@ class WebController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api');
+        $this->middleware('auth:api')->only(['index']);
     }
 
     #首页
