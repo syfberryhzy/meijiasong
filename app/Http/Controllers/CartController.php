@@ -59,7 +59,7 @@ class CartController extends Controller
                 'product_id' => $product->id,
                 'image' => asset('/uploads/' . $shelf->image[0])
             ]
-        );
+        )->associate(Product::class);
         $this->cart->store($identifier);
 
         $cacheKey = "{$identifier}.shelf.{$shelf->id}.product.{$product->id}";
@@ -102,11 +102,19 @@ class CartController extends Controller
      *
      * @return [type] [description]
      */
-    public function destory()
+    public function destory(Request $request)
     {
-        Cache::tags('shoppingcart')->flush();
-        $identifier = 'user.'.auth()->id().'.cart';
-        $this->cart->restore($identifier);
-        $this->cart->destroy();
+        // $identifier = 'user.'.auth()->id().'.cart';
+        // $this->cart->restore($identifier);
+        // if ($rowIds = $request->rowIds) {
+        //     foreach ($rowIds as $rowId) {
+        //         $this->cart->remove($rowId);
+        //     }
+        //     $this->cart->store($identifier);
+        // } else {
+        //     Cache::tags('shoppingcart')->flush();
+        //     $this->cart->destroy();
+        // }
+        $this->deleteCart();
     }
 }

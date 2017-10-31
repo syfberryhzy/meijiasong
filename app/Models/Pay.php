@@ -15,4 +15,14 @@ class Pay extends Model
     {
         return $this->hasOne(Order::class);
     }
+
+    public function isDeductible()
+    {
+        return $this->is_deductible == 1;
+    }
+
+    public function isReward()
+    {
+        return $this->is_reward == 1;
+    }
 }

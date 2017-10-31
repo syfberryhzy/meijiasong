@@ -26,6 +26,7 @@ $router->put('/user', [
     'middleware' => 'auth:api'
 ]);
 $router->get('/index', 'WebController@index');
+$router->get('/checkopen', 'WebController@checkOpen');
 $router->get('/detail/{shelf}', 'WebController@detail');
 $router->get('/recharge', 'WebController@recharge');
 $router->get('/shop', 'WebController@shop');

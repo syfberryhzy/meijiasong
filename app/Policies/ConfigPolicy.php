@@ -12,7 +12,11 @@ use Carbon\Carbon;
 class ConfigPolicy
 {
     use HandlesAuthorization;
-
+    /**
+     * 匹配配送距离和价格
+     * @param  Address $address [description]
+     * @return [type]           [description]
+     */
     public function defaultAddress(Address $address)
     {
         $distance = $this->getDistance($address['longitude'], $address['latitude']);
@@ -174,9 +178,10 @@ class ConfigPolicy
         $data = $this->configSend();
         $sendtimes = $data[0];
         $sendminutes = $data[1];
-        $now = "10:00";
-        // $ordertime = Carbon::now('Asia/Shanghai')->addMinutes($sendminutes);
-        $ordertime = Carbon::parse($now)->addMinutes($sendminutes);
+        // $now = "10:00";
+        // $ordertime = Carbon::parse($now)->addMinutes($sendminutes);
+        $ordertime = Carbon::now('Asia/Shanghai')->addMinutes($sendminutes);
+
         // dd($sendtimes[0]);
         #截止时间的前半个小时
         $end = Carbon::parse($sendtimes[1])->subMinutes(30);

@@ -24,7 +24,7 @@ class UserController extends Controller
     #个人中心首页
     public function index()
     {
-        $user = \Auth::user();
+        $user = auth()->user();
         return response()->json([ 'data' => $user, 'info' => '操作完成', 'status' => 1], 201);
     }
 
@@ -71,12 +71,9 @@ class UserController extends Controller
      */
     public function integral()
     {
-        $integrals = \Auth::user()->integrals;
-        foreach ($balances as $key => $vo) {
-            $dt = Carbon::parse($vo['created_at']);
-            $integrals[$key]['created_at'] = $dt->year . '-' . $dt->month . '-'. $dt->day;
-        }
-        $user_integral = number_format(\Auth::user()->integrals, 2);
+        $user = auth()->user();
+        $integrals = $user->integrals()->latest()->get();
+        $user_integral = number_format($user->integral, 2);
         return response()->json([ 'data' => $integrals, 'info' => '', 'status' => 1, 'integral' => $user_integral], 201);
     }
     /**
@@ -85,13 +82,9 @@ class UserController extends Controller
      */
     public function balance()
     {
-        $balances = \Auth::user()->balances;
-        $carbon = new Carbon();
-        foreach ($balances as $key => $vo) {
-            $dt = Carbon::parse($vo['created_at']);
-            $balances[$key]['created_at'] = $dt->year . '-' . $dt->month . '-'. $dt->day;
-        }
-        $user_balance = number_format(\Auth::user()->balance, 2);
+        $user = auth()->user();
+        $balances = $user->balances()->latest()->get();
+        $user_balance = number_format($user->balance, 2);
         return response()->json([ 'data' => $balances, 'info' => '', 'status' => 1, 'balance' => $user_balance], 201);
     }
 }

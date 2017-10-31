@@ -8,6 +8,23 @@ use App\Models\Order;
 
 class Balance extends Model
 {
+
+    protected $guarded = [];
+
+    /**
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        static::bootTraits();
+
+        static::created(function ($query) {
+            $query->user->update(['balance' => $query->current]);
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

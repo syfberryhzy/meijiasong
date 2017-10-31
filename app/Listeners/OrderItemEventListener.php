@@ -5,7 +5,6 @@ namespace App\Listeners;
 use App\Events\OrderItemEvent;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\MOdels\OrderItem;
 
 class OrderItemEventListener
 {
@@ -27,25 +26,18 @@ class OrderItemEventListener
      */
     public function handle(OrderItemEvent $event)
     {
-        #添加订单商品详情
-        $datas = [];
-        $data = array(
-          'user_id' => $event->user->id,
-          'order_id' => $event->order->id,
-        );
-        foreach ($event->products as $val) {
-          // dd($val);
-             $data['product_id'] = $val['id'];
-             $data['name'] = $val['name'];
-             $data['price'] = $val['price'];
-             $data['number'] = $val['number'];
-             $data['amount'] = ($val['price']) * ($val['number']);
-             $data['attributes'] = $val['attributes'];
-             $datas[] = $data;
-        }
-        OrderItem::insert($data);
-        // 积分抵扣
-        // 积分奖励
-        // 支付余额扣除
+        $order = $event->order;
+        collect($event->products)->map(function ($item, $key) use ($order) {
+            $data =  array(
+                'product_id' => $item->options->product_id,
+                'name' => $item->name,
+                'price' => $item->price,
+                'number' => $item->qty,
+                'amount' => ($item->price) * ($item->qty),
+                'order_id' => $order->id,
+                'attributes' => '',
+            );
+            $order->items()->create($data);
+        });
     }
 }

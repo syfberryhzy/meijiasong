@@ -19,11 +19,10 @@ class OrderItemEvent
      *
      * @return void
      */
-    public function __construct($products, $order, $user)
+    public function __construct($products, $order)
     {
         $this->products = $products;
         $this->order = $order;
-        $this->user = $user;
     }
 
     /**

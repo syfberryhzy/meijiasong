@@ -15,11 +15,29 @@ class User extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
-    protected $fillable = ['name', 'openid'];
+    protected $guarded = [];
 
     public function order()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function defaultAddress()
+    {
+        if ($this->isHasDefaultAddress()) {
+            return $this->address()->where('is_default', 1)->first();
+        }
+        return $this->address()->first();
+    }
+
+    public function isHasDefaultAddress()
+    {
+        return $this->address()->where('is_default', 1)->exists();
+    }
+
+    public function address()
+    {
+        return $this->hasMany(Address::class, 'user_id');
     }
 
     public function orderItem()

@@ -48,7 +48,7 @@ class AdminConfigTableSeeder extends Seeder
         if (!$config->exists) {
             $config->fill([
                 'value' => '浙江省湖州市红丰路655号,商住楼30幢红丰路609号',
-                'description'  => '商家地址'
+                'description'  => '[120.15507,30.274085]'
             ])->save();
         }
 

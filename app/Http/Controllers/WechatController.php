@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Pay;
 use EasyWeChat\Foundation\Application;
 use EasyWeChat\Payment\Order as PayOrder;
 use Carbon\Carbon;
 use Validator;
 use App\Events\OrderItemEvent;
+use Cart;
 
 class WechatController extends Controller
 {
@@ -17,6 +19,14 @@ class WechatController extends Controller
     {
         $this->middleware('auth:api');
     }
+
+
+    public function defaultAddress()
+    {
+        $address = auth()->user()->defaultAddress();
+        return $address;
+    }
+
     /**
      * 添加订单
      * @param  Request $request [description]
@@ -24,36 +34,54 @@ class WechatController extends Controller
      */
     public function store(Request $request)
     {
-        $products = $request->products;
-        $type = $request->type; //充值=> 1，购物 => 2
+        $user = auth()->user();
         $wxPay = Pay::PAY_WEIXIN_ID;
-        $pay_id = $request->type == 1 ?  $wxPay: $request->pay_id;
+        $type = $request->type ?: 2; //充值=> 1，购物 => 2
+        $pay_id = $type == 1 ?  $wxPay: $request->pay_id;
         $data = array(
             'amount' => $request->amount,
             'total' => $request->total,
-            'pay_id' => $pay_id
+            'discount' => $request->discount,
+            'pay_id' => $pay_id,
+            'type' => $type,
+            'is_discount' => $request->discount > 0 ? 1 : 0,//是否使用抵扣
         );
-        #验证
+        #验证？？？
 
         //送货信息
         if ($type == 2) {
-             $data['receiver'] = $request->receiver;
-             $data['phone'] = $request->phone;
-             $data['address'] = $request->address;
-             $data['remarks'] = $request->remarks;
+             $address = $user->defaultAddress()->only(['receiver', 'phone', 'areas', 'details']);
+             $data['receiver'] = $address['receiver'];
+             $data['phone'] = $address['phone'];
+             $data['address'] = $address['areas'] . $address['details'];
+             $data['remarks'] = $request->remarks;//备注
         }
-
-        $data['user_id'] = \Auth::user()->id;
         $data['out_trade_no'] = config('wechat.app_id') . date("YmdHis") . rand(10, 99);
         // $data['status'] = $pay_id == 3 ? 21 : 1;
-        $data['status'] = 1;
+        // $data['status'] = 1;
         // $data['prepay_id'] = $pay_id == 2 ? $this->getPrepayId($request, $data['out_trade_no']) : '';
         $data['prepay_id'] = '';
 
-        $order = Order::create($data);
+        $order = $user->order()->create($data);
 
-        // TODO 订单商品详情
-        event(new OrderItemEvent($products, $order, \Auth::user()));
+        //获取购物车商品
+        if ($cart = request()->cart) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $cart['id'],
+                'name' => $cart['name'],
+                'price' => $cart['price'],
+                'number' =>$cart['number'],
+                'amount' => request()->amount,
+                'attributes' => $cart['attributes']
+            ]);
+        } else {
+            $carts = $this->getCartContent();
+            // TODO 订单商品详情
+            event(new OrderItemEvent($carts, $order));
+            // TODO 清理购物车
+            $this->deleteCart();
+        }
 
         // // TODO 生成订单金额分配
         // event(new OrderEvent($order, $products, Auth::user()));

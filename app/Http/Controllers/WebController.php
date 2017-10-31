@@ -161,7 +161,7 @@ class WebController extends Controller
         $first = Carbon::parse($opentimes[0]);
         $second = Carbon::parse($opentimes[1]);
 
-        return Carbon::parse('now')->between($first, $second);
+        return response()->json([ 'data' => Carbon::parse('now')->between($first, $second), 'info' => '', 'status' => 1], 201);
     }
 
     public function checkSend()
@@ -202,7 +202,7 @@ class WebController extends Controller
 
     public function notice()
     {
-        $notice = Config::where('id', '>', Config::POINTS_ID)->orderBy('id', 'desc')->first()->toArray();
+        $notice = Config::where('id', '>', Config::POINTS_ID)->orderBy('id', 'desc')->first();
         if ($notice) {
             $notice['short_value'] = mb_substr($notice['value'], 0, 20, 'UTF-8') .'...';
             return response()->json([ 'data' => $notice, 'info' => '', 'status' => 1], 201);

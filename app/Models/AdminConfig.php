@@ -23,4 +23,11 @@ class AdminConfig extends Model
     const PICTURES2_IDS = 12; //('商家图片');
     const PICTURES3_IDS = 13; //('商家图片');
     const POINTS_ID = 14; //('商品抵扣比例');
+
+    public static function points()
+    {
+        $point = \App\Models\AdminConfig::where('id', self::POINTS_ID)->value('value');
+        $points = explode(':', $point);
+        return $point = $points[0] / $points[1];
+    }
 }

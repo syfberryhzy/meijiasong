@@ -29,20 +29,24 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $orders = Order::where('user_id', 1)->with('items');
-        if ($request->status) {
+        $user = auth()->user()->load('order.items.product.shelf')->order;
+
+        if ($request->status != 0) {
             $status = $request->status . '%';
-            $orders = $orders->where('status', 'like', $status);
+
+            dd($user);
+            $user = $user->where('orders.status', 'like', $status)->get();
+            dd($user);
         }
-        $orders = $orders->orderby('id', 'desc')->get()->toArray();
-        foreach ($orders as $key => $vo) {
-            $product = $vo['items'][0];
-            $image = $this->getImage($product['product_id']);
-            $product['image'] = $image ? config('app.url').'/uploads/'. $image : '/assets/goods.png';
-            $orders[$key]['product'] = $product;
-            $orders[$key]['status'] = $this->getStatus($vo['status']);
+        $orders = $user->toArray();
+        foreach ($orders as $key => $order) {
+            if ($order['items']) {
+                $image = $order['items']['0']['product']['shelf']['image']['0'];
+                $orders[$key]['image'] =  $image ? config('app.url').'/uploads/'. $image : '/assets/goods.png';
+                $orders[$key]['status'] = $this->getStatus($order['status']);
+            }
         }
-        return response()->json(['data' => $orders, 'status' => 1], 201);
+        return response()->json(['data' => array_reverse($orders), 'status' => 1], 201);
     }
 
 
@@ -150,22 +154,34 @@ class OrderController extends Controller
         }
     }
 
-    public function getIntegral()
+    public function getIntegral(Request $request)
     {
-        $products = array(
-          array('id' => 7, 'name' => '娃哈哈19升矿物质水', 'image' => '/assets/goods.png', 'price' => 22 , 'points' => 10, 'is_default' => 1,  'number' => '2'),
-          array('id' => 8, 'name' => '娃哈哈17升矿物质水', 'image' => '/assets/goods.png', 'price' => 15 , 'points' => 10, 'is_default' => 1,  'number' => '1'),
-          array('id' => 9, 'name' => '娃哈哈2升矿物质水', 'image' => '/assets/goods.png', 'price' => 35 , 'points' => 10, 'is_default' => 1,  'number' => '3')
-        );
-        // $products = Product::whereIn('id', array(1, 2, 3))->get()->toArray();
         $user = auth()->user();
+
+        $cart = $this->getcart();
+        $carts = $this->getCartContent($cart);
+        $count = $cart->count();
+        $subtotal = $cart->subtotal;
+        foreach ($carts as $cart) {
+            $products[] = array(
+                'id' => $cart->model->id,
+                'name' => $cart->name,
+                'image' => $cart->options->image,
+                'price' => $cart->model->price ,
+                'points' => $cart->model->points,
+                'is_default' => $cart->model->is_default,
+                'number' => $cart->qty
+            );
+        }
+        // $products = Product::whereIn('id', array(1, 2, 3))->get()->toArray();
+        // $user = auth()->user();
         $configPolicy = new ConfigPolicy();
 
         $datas = $configPolicy->getIntegral($user, $products);
         if ($datas) {
-            return response()->json(['data' => $datas, 'info' => '', 'status' => 1], 201);
+            return response()->json(['carts' => $carts, 'count' => $count, 'data' => $datas, 'info' => '', 'status' => 1], 201);
         }
-        return response()->json(['data' => [], 'info' => '', 'status' => 0], 403);
+        return response()->json(['carts' => $carts, 'count' => $count, 'data' => [], 'info' => '', 'status' => 0], 403);
     }
 
     public function getSendTimes()

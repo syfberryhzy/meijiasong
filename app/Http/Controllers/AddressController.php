@@ -21,6 +21,11 @@ use App\Models\Pay;
 class AddressController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
     /**
      * 地址列
      * @return [type] [description]
@@ -106,28 +111,18 @@ class AddressController extends Controller
      */
     public function delete(Address $address)
     {
-        // $userPolicy = new UserPolicy();
-        // if (!$userPolicy->update(\Auth::user())) {
-        //     return response()->json([ 'data' => $address, 'info' => '系统错误', 'status' => 0], 400);
-        // }
         if ($address->delete()) {
             return response()->json([ 'data' => [], 'info' => '删除成功', 'status' => 1], 201);
         }
         return response()->json([ 'data' => $address, 'info' => '删除失败', 'status' => 0], 201);
     }
 
-    public function default(Request $request)
+    public function default()
     {
-        #缓存
-        // $id = \Auth::user()->id;
-        $address = [];
-        $counts = Address::where('user_id', 1)->count();
-        if ($counts > 0) {
-            $address = Address::where('user_id', 1)->orderby('is_default', 'desc')->get();
-            // dd($address);
-            $configPolicy = new ConfigPolicy();
-            $address = $configPolicy->defaultAddress($address[0]);
-        }
+        $address = auth()->user()->defaultAddress();
+        // dd($address);
+        $configPolicy = new ConfigPolicy();
+        $address = $configPolicy->defaultAddress($address);
         return response()->json(['data' => $address, 'info' => '', 'status' => 1], 201);
     }
 }
