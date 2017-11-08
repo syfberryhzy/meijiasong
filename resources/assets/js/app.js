@@ -17,6 +17,23 @@ window.Vue = require('vue');
 
 Vue.component('example', require('./components/Example.vue'));
 
-const app = new Vue({
-    el: '#app'
-});
+// const app = new Vue({
+//     el: '#app',
+//     created() {
+//
+//     }
+// });
+
+Echo.private(`order.1`)
+  .listen('OrderItemEvent', (e) => {
+      var audio = $("#audio-tips")[0];
+      audio.pause();
+      audio.play();
+      console.log(e.products, e.order, e.num);
+      // var num = $("#notify-order").html();
+      // if (num == '') {
+      //     num = 0;
+      // }
+      $("#notify-order").html(e.num);
+
+  });

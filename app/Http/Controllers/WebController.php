@@ -29,7 +29,10 @@ class WebController extends Controller
     public function index()
     {
         #商品列表
-        $categories = Category::where('status', Category::ON)->where('id', '<>', Category::RECHARGE_ID)->with('shelf', 'shelf.product')->get()->toArray();
+        $categories = Cache::remember('categories', 60, function () {
+            return $categories = Category::where('status', Category::ON)->where('id', '<>', Category::RECHARGE_ID)->with('shelf', 'shelf.product')->get()->toArray();
+        });
+
         $datas = [];
         foreach ($categories as $cate) {
             $data['name'] = $cate['title'];
@@ -80,7 +83,7 @@ class WebController extends Controller
         $qty = 0;
         foreach ($products as $product) {
             $rowId = $cart->search(function ($cartItem, $rowId) use ($id, $product) {
-            	return $cartItem->options->shelf_id === $id && $cartItem->options->product_id == $product['id'];
+                return $cartItem->options->shelf_id === $id && $cartItem->options->product_id == $product['id'];
             });
             $qty += $rowId ? ShopCart::get($rowId)->qty : 0;
         }

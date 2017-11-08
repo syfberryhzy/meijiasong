@@ -53,7 +53,7 @@ class Controller extends BaseController
             }
             $cart->store($identifier);
         } else {
-            Cache::tags('shoppingcart')->flush();
+            \Cache::tags('shoppingcart')->flush();
             $cart->destroy();
         }
     }

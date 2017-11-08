@@ -41,14 +41,8 @@ class Order extends Model
         static::bootTraits();
 
         static::created(function ($query) {
-            if ($query->type == 2) {
-                $query->deduct();//抵扣积分
-                $query->reward();//奖励积分
-                $query->pay_id == 1 && $query->reduceBalance();//扣除余额
-            } elseif ($query->type == 1) {
-                $query->addBalance();//添加余额
-            }
-            // 清理购物车
+            $query->ifShopping();
+            $query->ifRecharge();
         });
     }
 
@@ -58,7 +52,7 @@ class Order extends Model
             $point = $this->discount * (AdminConfig::points());
             #添加抵扣记录
             $this->changeIntegral([
-                'current' => auth()->user()->integral - $point,
+                'current' => $this->user->integral - $point,
                 'desc' => '支付抵扣',
                 'number' => $point,
                 'type' => 2
@@ -72,7 +66,7 @@ class Order extends Model
             $point = $this->total * ($this->pay->proportion);//奖励积分
             #添加奖励记录
             $this->changeIntegral([
-                'current' => auth()->user()->integral + $point,
+                'current' => $this->user->integral + $point,
                 'number' => $point,
                 'desc' => '支付奖励',
                 'type' => 1
@@ -83,8 +77,8 @@ class Order extends Model
     public function changeIntegral($data)
     {
         $integral = [
-            'before' => auth()->user()->integral,
-            'user_id' => auth()->id(),
+            'before' => $this->user->integral,
+            'user_id' => $this->user_id,
         ];
         $this->integral()->create(array_merge($integral, $data));
     }
@@ -94,10 +88,10 @@ class Order extends Model
      */
     public function addBalance()
     {
-        $cart = request()->cart;
+        $price = $this->items->first()->amount;
         $this->changeBalance([
-            'current' => auth()->user()->balance + intval($cart['old_name']),
-            'number' => intval($cart['old_name']),
+            'current' => $this->user->balance + intval($price),
+            'number' => intval($price),
             'desc' => '余额充值',
             'type' => 1
         ]);
@@ -109,7 +103,7 @@ class Order extends Model
     public function reduceBalance()
     {
         $this->changeBalance([
-            'current' => auth()->user()->balance - $this->total,
+            'current' => $this->user->balance - $this->total,
             'number' => $this->total,
             'desc' => '支付扣除',
             'type' => 2
@@ -119,8 +113,8 @@ class Order extends Model
     public function changeBalance($data)
     {
         $balance = [
-            'before' => auth()->user()->balance,
-            'user_id' => auth()->id(),
+            'before' => $this->user->balance,
+            'user_id' => $this->user_id,
         ];
         $this->balance()->create(array_merge($balance, $data));
     }
@@ -164,5 +158,21 @@ class Order extends Model
         }
 
         return $query->where('status', 'like', $status.'%');
+    }
+
+    public function ifShopping()
+    {
+        if ($this->type == 2 && $this->status == 21) {
+            $this->deduct();//抵扣积分
+            $this->reward();//奖励积分
+            $this->pay_id == 1 && $this->reduceBalance();//扣除余额
+        }
+    }
+
+    public function ifRecharge()
+    {
+        if ($this->type == 1 && $this->status == 40) {
+            $this->addBalance();//添加余额
+        }
     }
 }

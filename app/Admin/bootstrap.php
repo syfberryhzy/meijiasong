@@ -25,7 +25,7 @@
  use App\Admin\Extensions\Column\UrlWrapper;
  use Encore\Admin\Grid\Column;
 
- Admin::js('/packages/clipboard/dist/clipboard.min.js');
+ // Admin::js('/packages/clipboard/dist/clipboard.min.js');
 
  Column::extend('expand', ExpandRow::class);
  Column::extend('openMap', OpenMap::class);
@@ -35,3 +35,5 @@
  Column::extend('prependIcon', function ($value, $icon) {
      return "<span style='color: #999;'><i class='fa fa-$icon'></i>  $value</span>";
  });
+
+ app('view')->prependNamespace('admin', resource_path('views/admin'));

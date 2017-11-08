@@ -74,15 +74,20 @@ class ProductController extends Controller
     protected function grid()
     {
         return Admin::grid(Product::class, function (Grid $grid) {
-
+            $grid->model()->orderBy('id', 'desc');
             $grid->id('ID')->sortable();
             $grid->column('shelf.name', '商品名称');
             $grid->column('shelf.attributes', '属性')->display(function ($str) {
                 return '<font color="#d2d6de">'. $str. ': </font>'. $this->characters;
             });
             $grid->price('单价');
+            $grid->column('shelf.image', '图片')->display(function ($image) {
+                return '<img src="/uploads/'.$image[0].'" style="width:100px;height:85px;">';
+            });
             $grid->sales('销量');
-            $grid->content('商品说明');
+            $grid->column('content', '商品说明')->display(function ($content) {
+                return mb_substr($content, 0, 70).'...';
+            });
             $states = [
                 'on'  => ['value' => 1, 'text' => 'YES', 'color' => 'success'],
                 'off' => ['value' => 0, 'text' => 'NO', 'color' => 'danger'],

@@ -13,6 +13,8 @@ class HomeController extends Controller
 {
     public function index()
     {
+        \Auth::login(\App\Models\User::find(1));
+
         return Admin::content(function (Content $content) {
 
             $content->header('Dashboard');

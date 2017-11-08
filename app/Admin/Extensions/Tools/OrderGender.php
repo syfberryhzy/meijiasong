@@ -14,12 +14,9 @@ class OrderGender extends AbstractTool
 
         return <<<EOT
 
-$('input:radio.order-gender').change(function () {
-
+$('.order-gender').on("change", function () {
     var url = "$url".replace('_status_', $(this).val());
-
     $.pjax({container:'#pjax-container', url: url });
-
 });
 
 EOT;

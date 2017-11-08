@@ -30,7 +30,12 @@ class CartController extends Controller
     {
         $identifier = 'user.'.auth()->id().'.cart';
         $this->cart->restore($identifier);
-        $this->cart->store($identifier);
+        try {
+            $this->cart->store($identifier);
+        } catch (\Gloudemans\Shoppingcart\Exceptions\CartAlreadyStoredException $e) {
+            \DB::table('shoppingcart')->where(['identifier' => $identifier])->delete();
+            $this->cart->store($identifier);
+        }
         return response([
             'data' => $this->cart->content(),
             'count' => $this->cart->count(),
@@ -49,21 +54,36 @@ class CartController extends Controller
     {
         $identifier = 'user.'.auth()->id().'.cart';
         $this->cart->restore($identifier);
-        $data = $this->cart->add(
-            $product->id,
-            $shelf->name . "( {$product->characters} )",
-            1,
-            $product->price,
-            $options = [
-                'shelf_id' => $shelf->id,
-                'product_id' => $product->id,
-                'image' => asset('/uploads/' . $shelf->image[0])
-            ]
-        )->associate(Product::class);
-        $this->cart->store($identifier);
 
         $cacheKey = "{$identifier}.shelf.{$shelf->id}.product.{$product->id}";
-        Cache::tags(['shoppingcart'])->forever($cacheKey, $data->rowId);
+        $rowId = Cache::tags(['shoppingcart'])->get($cacheKey);
+
+        if ($this->cart->content()->has($rowId)) {
+            $this->cart->update($rowId, ['qty' => (int)request()->qty]);
+        } else {
+            $data = $this->cart->add(
+                $product->id,
+                $shelf->name . "( {$product->characters} )",
+                request()->qty ?? 1,
+                $product->price,
+                $options = [
+                    'shelf_id' => $shelf->id,
+                    'product_id' => $product->id,
+                    'image' => asset('/uploads/' . $shelf->image[0])
+                ]
+            )->associate(Product::class);
+
+            $cacheKey = "{$identifier}.shelf.{$shelf->id}.product.{$product->id}";
+            Cache::tags(['shoppingcart'])->forever($cacheKey, $data->rowId);
+        }
+
+        try {
+            $this->cart->store($identifier);
+        } catch (\Gloudemans\Shoppingcart\Exceptions\CartAlreadyStoredException $e) {
+            \DB::table('shoppingcart')->where(['identifier' => $identifier])->delete();
+            $this->cart->store($identifier);
+        }
+
 
         return response($this->cart->content());
     }
@@ -92,7 +112,13 @@ class CartController extends Controller
             $this->cart->update($rowId, ['qty' => (int)$data['qty']]);
         }
 
-        $this->cart->store($identifier);
+        try {
+            $this->cart->store($identifier);
+        } catch (\Gloudemans\Shoppingcart\Exceptions\CartAlreadyStoredException $e) {
+            \DB::table('shoppingcart')->where(['identifier' => $identifier])->delete();
+            $this->cart->store($identifier);
+        }
+
 
         return response($this->cart->content());
     }

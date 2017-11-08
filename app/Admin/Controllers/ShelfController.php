@@ -73,7 +73,7 @@ class ShelfController extends Controller
     protected function grid()
     {
         return Admin::grid(Shelf::class, function (Grid $grid) {
-
+            $grid->model()->orderBy('id', 'desc');
             $grid->id('ID')->sortable();
             $grid->name('商品名称');
             $grid->column('category.title', '所属分类');
