@@ -86,6 +86,8 @@ class WechatController extends Controller
 
     public function update(Request $request)
     {
+
+        \Log::info('回调开始');
         $result = fromXml($request->getContent());
         $order = Order::where('out_trade_no', '=', $result['out_trade_no'])->firstOrFail();
 
@@ -99,6 +101,8 @@ class WechatController extends Controller
         #后续操作
         $order->ifShopping();
         $order->ifRecharge();
+
+                \Log::info('回调jeishu ');
         return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
     }
 
