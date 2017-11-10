@@ -86,8 +86,8 @@ class WechatController extends Controller
 
     public function update(Request $request)
     {
-        // $result = fromXml($request->getContent());
-        $order = Order::where('out_trade_no', '=', request()->out_trade_no)->firstOrFail();
+        $result = fromXml($request->getContent());
+        $order = Order::where('out_trade_no', '=', $result['out_trade_no'])->firstOrFail();
 
         if (21 === $order['status']) {
             return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));

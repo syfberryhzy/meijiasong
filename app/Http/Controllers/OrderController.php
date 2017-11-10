@@ -30,14 +30,6 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user()->load('order.items.product.shelf')->order;
-
-        if ($request->status != 0) {
-            $status = $request->status . '%';
-
-            dd($user);
-            $user = $user->where('orders.status', 'like', $status)->get();
-            dd($user);
-        }
         $orders = $user->toArray();
         foreach ($orders as $key => $order) {
             if ($order['items']) {
