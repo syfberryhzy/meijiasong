@@ -58,7 +58,7 @@ class CartController extends Controller
         $cacheKey = "{$identifier}.shelf.{$shelf->id}.product.{$product->id}";
         $rowId = Cache::tags(['shoppingcart'])->get($cacheKey);
 
-        if ($this->cart->content()->has($rowId)) {
+        if ($this->cart->content()->has($rowId) && !is_null(request()->qty)) {
             $this->cart->update($rowId, ['qty' => (int)request()->qty]);
         } else {
             $data = $this->cart->add(
