@@ -24,7 +24,6 @@ class CreateAddressesTable extends Migration
             $table->string('longitude', 50)->comment('纬度');
             $table->string('latitude', 50)->comment('经度');
             $table->tinyInteger('is_default')->comment('是否默认1=默认，0=不默认')->default(0);
-            $table->tinyInteger('status')->comment('状态1=默认，0=不默认')->default(0);
             $table->timestamps();
         });
     }

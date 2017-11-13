@@ -32,7 +32,7 @@ class AddressController extends Controller
      */
     public function index()
     {
-        $address = auth()->user()->address();
+        $address = auth()->user()->address;
         return response()->json([ 'data' => $address, 'info' => '操作完成', 'status' => 1], 201);
     }
 
@@ -64,7 +64,7 @@ class AddressController extends Controller
             'areas' => $request->areas,
             'details' => $request->details,
             'longitude' => $request->longitude,
-            'latitude' => $request->latitude
+            'latitude' => $request->latitude,
         ];
 
         if ($address = Address::create($data)) {
