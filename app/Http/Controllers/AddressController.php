@@ -32,7 +32,7 @@ class AddressController extends Controller
      */
     public function index()
     {
-        $address = Address::where('user_id', 1)->orderby('is_default', 'desc')->get()->toArray();
+        $address = auth()->user()->address();
         return response()->json([ 'data' => $address, 'info' => '操作完成', 'status' => 1], 201);
     }
 
@@ -58,7 +58,7 @@ class AddressController extends Controller
     {
 
         $data = [
-            'user_id' => 1,
+            'user_id' => auth()->id(),
             'receiver' => $request->receiver,
             'phone' => $request->phone,
             'areas' => $request->areas,
@@ -97,7 +97,7 @@ class AddressController extends Controller
         }
         if ($address->save()) {
             if ($address->is_default == 1) {
-                Address::where('user_id', 1)->where('id', '<>', $address->id)->update(['is_default' => 0]);
+                Address::where('user_id', auth()->id())->where('id', '<>', $address->id)->update(['is_default' => 0]);
             }
             return response()->json([ 'data' => $address, 'info' => '修改成功', 'status' => 1], 201);
         }
@@ -120,7 +120,6 @@ class AddressController extends Controller
     public function default()
     {
         $address = auth()->user()->defaultAddress();
-        // dd($address);
         $configPolicy = new ConfigPolicy();
         $address = $configPolicy->defaultAddress($address);
         return response()->json(['data' => $address, 'info' => '', 'status' => 1], 201);
