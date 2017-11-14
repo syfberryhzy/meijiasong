@@ -42,6 +42,7 @@ class ConfigPolicy
             'address'  => $configs[AdminConfig::ADDRESS_ID - 1],
             'tel'  => $configs[AdminConfig::SHOPTEL_ID - 1],
             'sendmess' => $configs[AdminConfig::SENDMESS_ID - 1],
+            'standard' =>  $configs[AdminConfig::STANDARD_ID - 1],
             'activity' => $configs[AdminConfig::ACTIVITY_ID - 1],
             'service' => $configs[AdminConfig::SERVICE_ID - 1],
             'standard' => $configs[AdminConfig::STANDARD_ID - 1],
