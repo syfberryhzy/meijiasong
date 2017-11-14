@@ -20,7 +20,6 @@ class ConfigPolicy
     public function defaultAddress(Address $address)
     {
         $distance = $this->getDistance($address['longitude'], $address['latitude']);
-        dd($distance);
         $sendfee = $this->shopSendFee($distance);
         $address['distance'] = $distance;
         $address['sendfee'] = $sendfee;
@@ -134,7 +133,6 @@ class ConfigPolicy
 
     public function getIntegral(User $user, $products)
     {
-        // dd($products);
         #商品抵扣比例
         $points = $this->getPoints();
         $inte = $points[0];
