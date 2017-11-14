@@ -91,7 +91,7 @@ class WechatController extends Controller
         $result = fromXml($request->getContent());
         $order = Order::where('out_trade_no', '=', $result['out_trade_no'])->firstOrFail();
 
-        if (21 === $order['status']) {
+        if (21 === $order['status'] || 41 === $order['status']) {
             return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
         }
         $status = $order['type'] == 1 ? 41: 21;
@@ -103,7 +103,7 @@ class WechatController extends Controller
 
         $order->ifRecharge();
 
-        \Log::info('回调jeishu ', $order);
+        \Log::info('回调jeishu ');
         return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
     }
 
