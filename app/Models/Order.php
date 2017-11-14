@@ -80,7 +80,9 @@ class Order extends Model
             'before' => $this->user->integral,
             'user_id' => $this->user_id,
         ];
-        $this->integral()->create(array_merge($integral, $data));
+        if ($data['number'] > 0) {
+            $this->integral()->create(array_merge($integral, $data));
+        }
     }
 
     /**
