@@ -57,7 +57,7 @@ class OrderController extends Controller
     {
         $datas = [];
         for ($i=1; $i<=4; $i++) {
-            $datas[] = Order::where('user_id', auth()->id())->where('status', 'like', $i.'%')->count();
+            $datas[] = Order::where('user_id', auth()->id())->where('type', 2)->where('status', 'like', $i.'%')->count();
         }
         return response()->json(['data' => $datas, 'status' => 1], 201);
     }
