@@ -31,14 +31,16 @@ class OrderController extends Controller
     {
         $user = auth()->user()->load('order.items.product.shelf')->order;
         $orders = $user->toArray();
+        $datas = [];
         foreach ($orders as $key => $order) {
-            if ($order['items']) {
+            if ($order['type'] == 2 && $order['items']) {
                 $image = $order['items']['0']['product']['shelf']['image']['0'];
                 $orders[$key]['image'] =  $image ? config('app.url').'/uploads/'. $image : '/assets/goods.png';
                 $orders[$key]['status'] = $this->getStatus($order['status']);
+                $datas[] = $orders[$key];
             }
         }
-        return response()->json(['data' => array_reverse($orders), 'status' => 1], 201);
+        return response()->json(['data' => array_reverse($datas), 'status' => 1], 201);
     }
 
     public function show(Order $order)
