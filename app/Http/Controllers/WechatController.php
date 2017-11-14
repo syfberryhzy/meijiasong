@@ -94,7 +94,7 @@ class WechatController extends Controller
         if (21 === $order['status']) {
             return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
         }
-        $status = $order['type'] == 1 ? 40: 21;
+        $status = $order['type'] == 1 ? 41: 21;
         $order->update([
             'status' => $status
         ]);
