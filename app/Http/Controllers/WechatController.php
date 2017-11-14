@@ -100,9 +100,10 @@ class WechatController extends Controller
         ]);
         #后续操作
         $order->ifShopping();
+
         $order->ifRecharge();
 
-                \Log::info('回调jeishu ');
+                \Log::info('回调jeishu ', $order);
         return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
     }
 
