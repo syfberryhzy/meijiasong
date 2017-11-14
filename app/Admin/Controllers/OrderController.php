@@ -88,7 +88,7 @@ class OrderController extends Controller
     {
         return Admin::grid(Order::class, function (Grid $grid) {
 
-            $grid->model()->gender(request()->get('status'))->where('type', 2)->orderby('id', 'desc');
+            $grid->model()->gender(request()->get('status'))->whereNotNull('prepay_id')->where('type', 2)->orderby('id', 'desc');
             $grid->id('ID')->sortable();
             $grid->column('user.name', '用户名');
             $grid->column('pay.name', '支付方式');
