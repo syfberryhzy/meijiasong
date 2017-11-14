@@ -33,7 +33,7 @@ class OrderItemEventListener
                 'name' => $item->name,
                 'price' => $item->price,
                 'number' => $item->qty,
-                'amount' => ($item->price) * ($item->qty),
+                'amount' => $order->type == 1 ? $item->amount : ($item->price) * ($item->qty),
                 'order_id' => $order->id,
                 'attributes' => '',
             );

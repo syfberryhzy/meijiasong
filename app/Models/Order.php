@@ -91,7 +91,7 @@ class Order extends Model
         $price = $this->items->first()->amount;
         $this->changeBalance([
             'current' => $this->user->balance + intval($price),
-            'number' => intval($price),
+            'amount' => intval($price),
             'desc' => '余额充值',
             'type' => 1
         ]);
@@ -171,7 +171,7 @@ class Order extends Model
 
     public function ifRecharge()
     {
-        if ($this->type == 1 && $this->status == 40) {
+        if ($this->type == 1 && $this->status == 41) {
             $this->addBalance();//添加余额
         }
     }

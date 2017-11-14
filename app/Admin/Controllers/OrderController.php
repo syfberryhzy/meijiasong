@@ -122,8 +122,8 @@ class OrderController extends Controller
 
             $grid->column('items', '采购详情')->expand(function () {
                 $items = $this->items->toArray();
-                $headers = ['ID', '商品', '属性', '单价', '数量', '总计'];
-                $title = ['id', 'name', 'attributes', 'price', 'number', 'amount'];
+                $headers = ['ID', '商品', '属性', '数量', '单价',  '总计'];
+                $title = ['id', 'name', 'attributes', 'number', 'price', 'amount'];
                 $datas = array_map(function ($item) use ($title) {
                     return array_only($item, $title);
                 }, $items);

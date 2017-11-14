@@ -41,8 +41,6 @@ class OrderController extends Controller
         return response()->json(['data' => array_reverse($orders), 'status' => 1], 201);
     }
 
-
-
     public function show(Order $order)
     {
         $order['items'] = OrderItem::where('order_id', $order->id)->get()->toArray();

@@ -20,6 +20,7 @@ class ConfigPolicy
     public function defaultAddress(Address $address)
     {
         $distance = $this->getDistance($address['longitude'], $address['latitude']);
+        dd($distance);
         $sendfee = $this->shopSendFee($distance);
         $address['distance'] = $distance;
         $address['sendfee'] = $sendfee;
@@ -101,7 +102,7 @@ class ConfigPolicy
         $EARTH_RADIUS = 6370.996; // 地球半径系数
         $PI = 3.1415926;
         $locations = $this->shopLocation();
-        // dd($locations);
+
         $longitude2 = $locations[0];
         $latitude2 = $locations[1];
 
