@@ -103,7 +103,7 @@ class WechatController extends Controller
 
         $order->ifRecharge();
 
-                \Log::info('回调jeishu ', $order);
+        \Log::info('回调jeishu ', $order);
         return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
     }
 

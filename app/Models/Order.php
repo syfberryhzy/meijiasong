@@ -91,7 +91,7 @@ class Order extends Model
         $price = $this->items->first()->amount;
         $this->changeBalance([
             'current' => $this->user->balance + intval($price),
-            'amount' => intval($price),
+            'number' => intval($price),
             'desc' => '余额充值',
             'type' => 1
         ]);
