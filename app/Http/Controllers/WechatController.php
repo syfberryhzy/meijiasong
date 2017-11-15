@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\CancelOrder;
+use App\Policies\ConfigPolicy;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -98,6 +99,16 @@ class WechatController extends Controller
         } else {
             $result = fromXml($request->getContent());
             $order = Order::where('out_trade_no', '=', $result['out_trade_no'])->firstOrFail();
+        }
+
+        if ($order['pay_id'] == 2) {
+            $config = new ConfigPolicy();
+            $points = $config->getPoints();
+            $inte = $points[0];
+            $money = $points[1];
+            if ($order->user->integral < $order['discount'] * $inte / $mone) {
+                return response()->json(['info' => '您的积分不足，请重新下单', 'status' => 0], 403);
+            }
         }
         if (21 === $order['status'] || 41 === $order['status']) {
             return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
