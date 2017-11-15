@@ -37,10 +37,7 @@ class CancelOrder implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->order['prepay_id'] == '') {
-            #删除订单
-            $this->order->delete();
-        } elseif ($this->order['status'] == '1') {
+        if ($this->order['status'] == '1') {
             #取消订单
             $this->order->update([
                 'status' => 31

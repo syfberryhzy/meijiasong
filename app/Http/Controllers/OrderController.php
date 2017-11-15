@@ -33,7 +33,7 @@ class OrderController extends Controller
         $orders = $user->toArray();
         $datas = [];
         foreach ($orders as $key => $order) {
-            if ($order['type'] == 2 && $order['items'] && $order['prepay_id'] != '') {
+            if ($order['type'] == 2 && $order['items']) {
                 $image = $order['items']['0']['product']['shelf']['image']['0'];
                 $orders[$key]['image'] =  $image ? config('app.url').'/uploads/'. $image : '/assets/goods.png';
                 $orders[$key]['status'] = $this->getStatus($order['status']);
@@ -59,7 +59,7 @@ class OrderController extends Controller
     {
         $datas = [];
         for ($i=1; $i<=4; $i++) {
-            $datas[] = Order::where('user_id', auth()->id())->where('type', '2')->where('status', 'like', $i.'%')->where('prepay_id', '<>', '')->count();
+            $datas[] = Order::where('user_id', auth()->id())->where('type', '2')->where('status', 'like', $i.'%')->count();
         }
         return response()->json(['data' => $datas, 'status' => 1], 201);
     }

@@ -51,7 +51,7 @@ class WechatController extends Controller
             'is_discount' => $request->discount > 0 ? 1 : 0,//是否使用抵扣
         );
         if ($pay_id == 1 && $user->balance < $request->amount) {
-            return response()->json(['data' => '', 'status' => 0], 400);
+            return response()->json(['data' => '', 'status' => 0], 422);
         }
 
         //送货信息
@@ -84,7 +84,7 @@ class WechatController extends Controller
             $this->deleteCart();
         }
         #15分钟自动取消待付款
-        CancelOrder::dispatch($order)->delay(Carbon::now()->addMinutes(15));
+        CancelOrder::dispatch($order)->delay(Carbon::now()->addMinutes(1));
         return response()->json(['data' => $order, 'status' => 1], 201);
     }
 
@@ -94,7 +94,7 @@ class WechatController extends Controller
         if ($request->out_trade_no) {
             $order = Order::where('out_trade_no', '=', $request->out_trade_no)->firstOrFail();
             if ($order['pay_id'] == 1 && $order->user->balance < $order['total']) {
-                return response()->json(['info' => '余额不足，请先充值', 'status' => 0], 403);
+                return response()->json(['info' => '余额不足，请先充值', 'status' => 0], 422);
             }
         } else {
             $result = fromXml($request->getContent());
@@ -107,7 +107,7 @@ class WechatController extends Controller
             $inte = $points[0];
             $money = $points[1];
             if ($order->user->integral < $order['discount'] * $inte / $mone) {
-                return response()->json(['info' => '您的积分不足，请重新下单', 'status' => 0], 403);
+                return response()->json(['info' => '您的积分不足，请重新下单', 'status' => 0], 422);
             }
         }
         if (21 === $order['status'] || 41 === $order['status']) {
@@ -119,7 +119,6 @@ class WechatController extends Controller
         ]);
         #后续操作
         $order->ifShopping();
-
         $order->ifRecharge();
 
         \Log::info('回调jeishu ');
