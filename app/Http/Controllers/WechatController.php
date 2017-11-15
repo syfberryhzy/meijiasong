@@ -65,7 +65,6 @@ class WechatController extends Controller
         $data['out_trade_no'] = date("YmdHis") . rand(1000, 9999);
         $data['prepay_id'] = $pay_id == 2 ? $this->getPrepayId($request, $data['out_trade_no']) : '';
         $order = $user->order()->create($data);
-
         //获取购物车商品
         if ($cart = request()->cart) {
             OrderItem::create([
@@ -86,7 +85,7 @@ class WechatController extends Controller
         }
 
         #15分钟自动取消待付款
-        CancelOrder::dispatch($order);
+        CancelOrder::dispatch($order)->delay(Carbon::now()->addMinutes(15));
         return response()->json(['data' => $order, 'status' => 1], 201);
     }
 
