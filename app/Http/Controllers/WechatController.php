@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CancelOrder;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -81,7 +82,8 @@ class WechatController extends Controller
             // TODO 清理购物车
             $this->deleteCart();
         }
-
+        #15分钟自动取消待付款
+        CancelOrder::dispatch($order)->delay(Carbon::now()->addMinutes(15));
         return response()->json(['data' => $order, 'status' => 1], 201);
     }
 
