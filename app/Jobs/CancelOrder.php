@@ -38,7 +38,7 @@ class CancelOrder implements ShouldQueue
      */
     public function handle()
     {
-        \Log::info('回调Cancel--start'. $this->order['status']);
+        \Log::info('回调Cancel--start'. $this->order);
         if ($this->order['status'] == '1') {
             #取消订单
             \Log::info('回调order--update');
