@@ -39,10 +39,10 @@ class CancelOrder implements ShouldQueue
     {
         if ($this->order['prepay_id'] == '') {
             #删除订单
-            $order->delete();
+            $this->order->delete();
         } elseif ($this->order['status'] == '1') {
             #取消订单
-            $order->update([
+            $this->order->update([
                 'status' => 31
             ]);
         }
