@@ -25,3 +25,8 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::any('/wechat/payment/notify', 'WechatController@update');
+
+Route::get('canelorder', function () {
+    $order = \App\Models\Order::find(112);
+    \App\Jobs\CancelOrder::dispatch($order);
+});
