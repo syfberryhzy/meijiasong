@@ -85,7 +85,7 @@ class WechatController extends Controller
         }
 
         #15分钟自动取消待付款
-        CancelOrder::dispatch($order)->delay(Carbon::now()->addMinutes(15));
+        CancelOrder::dispatch($order)->delay(Carbon::now()->addMinutes(1));
         return response()->json(['data' => $order, 'status' => 1], 201);
     }
 
