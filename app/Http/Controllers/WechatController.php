@@ -81,15 +81,19 @@ class WechatController extends Controller
             // TODO 清理购物车
             $this->deleteCart();
         }
+
         return response()->json(['data' => $order, 'status' => 1], 201);
     }
 
     public function update(Request $request)
     {
-
         \Log::info('回调开始');
-        $result = fromXml($request->getContent());
-        $order = Order::where('out_trade_no', '=', $result['out_trade_no'])->firstOrFail();
+        if ($request->out_trade_no) {
+            $order = Order::where('out_trade_no', '=', $request->out_trade_no)->firstOrFail();
+        } else {
+            $result = fromXml($request->getContent());
+            $order = Order::where('out_trade_no', '=', $result['out_trade_no'])->firstOrFail();
+        }
 
         if (21 === $order['status'] || 41 === $order['status']) {
             return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
