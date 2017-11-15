@@ -101,15 +101,6 @@ class WechatController extends Controller
             $order = Order::where('out_trade_no', '=', $result['out_trade_no'])->firstOrFail();
         }
 
-        if ($order['pay_id'] == 2) {
-            $config = new ConfigPolicy();
-            $points = $config->getPoints();
-            $inte = $points[0];
-            $money = $points[1];
-            if ($order->user->integral < $order['discount'] * $inte / $mone) {
-                return response()->json(['info' => '您的积分不足，请重新下单', 'status' => 0], 422);
-            }
-        }
         if (21 === $order['status'] || 41 === $order['status']) {
             return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
         }

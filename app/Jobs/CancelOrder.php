@@ -8,6 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\Order;
+use Log;
 
 class CancelOrder implements ShouldQueue
 {
@@ -37,11 +38,15 @@ class CancelOrder implements ShouldQueue
      */
     public function handle()
     {
+        \Log::info('回调Cancel--start', $this->order['status']);
         if ($this->order['status'] == '1') {
             #取消订单
+            \Log::info('回调order--update');
             $this->order->update([
                 'status' => 31
             ]);
+            \Log::info('回调order-end');
         }
+        \Log::info('回调Cancel--end');
     }
 }
