@@ -90,11 +90,13 @@ class WechatController extends Controller
         \Log::info('回调开始');
         if ($request->out_trade_no) {
             $order = Order::where('out_trade_no', '=', $request->out_trade_no)->firstOrFail();
+            if ($order['pay_id'] == 1 && auth()->user()->balance < $order['total']) {
+                return resonse()->json(['info' => '余额不足，请先充值', 'status' => 0], 403);
+            }
         } else {
             $result = fromXml($request->getContent());
             $order = Order::where('out_trade_no', '=', $result['out_trade_no'])->firstOrFail();
         }
-
         if (21 === $order['status'] || 41 === $order['status']) {
             return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
         }
