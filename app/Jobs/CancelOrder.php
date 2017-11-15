@@ -25,7 +25,7 @@ class CancelOrder implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Podcast $order)
+    public function __construct(Order $order)
     {
          $this->order = $order;
     }
