@@ -78,7 +78,7 @@ class UserController extends Controller
             $grid->id('ID')->sortable();
             $grid->name('用户名');
             $grid->avatar('头像')->display(function ($avatar) {
-                return '<img src="/uploads/' . $avatar . '" style="width:100px;">';
+                return '<img src="/uploads/' . $avatar . '" style="width:80px;height:80px;">';
             });
             $grid->gender('性别')->display(function ($gender) {
                 return $gender == 1 ? '男' : '女';

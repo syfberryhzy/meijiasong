@@ -82,7 +82,7 @@ class ProductController extends Controller
             });
             $grid->price('单价');
             $grid->column('shelf.image', '图片')->display(function ($image) {
-                return '<img src="/uploads/'.$image[0].'" style="width:100px;height:85px;">';
+                return '<img src="/uploads/'.$image[0].'" style="width:80px;height:80px;">';
             });
             $grid->sales('销量');
             $grid->column('content', '商品说明')->display(function ($content) {

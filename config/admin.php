@@ -5,17 +5,17 @@ return [
     /*
      * Laravel-admin name.
      */
-    'name'      => 'Laravel-admin',
+    'name'      => '美加送后台',
 
     /*
      * Logo in admin panel header.
      */
-    'logo'      => '<b>Laravel</b> admin',
+    'logo'      => '<b>美加送</b> 后台管理',
 
     /*
      * Mini-logo in admin panel header.
      */
-    'logo-mini' => '<b>La</b>',
+    'logo-mini' => '<b>美</b>',
 
     /*
      * Route configration.
