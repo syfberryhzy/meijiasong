@@ -77,7 +77,7 @@ class ShelfController extends Controller
             $grid->id('ID')->sortable();
             $grid->name('商品名称');
             $grid->column('category.title', '所属分类');
-            $grid->image('图片')->image('80', '80');
+            $grid->column('image', '图片')->image('80', '80');
             $grid->attributes('商品属性');
             // $states = [
             //     'on'  => ['value' => 1, 'text' => 'Yes', 'color' => 'success'],
@@ -90,6 +90,7 @@ class ShelfController extends Controller
             ];
             $grid->status('显示？')->switch($states);
             $grid->created_at('创建时间');
+            $grid->disableExport();
         });
     }
 
