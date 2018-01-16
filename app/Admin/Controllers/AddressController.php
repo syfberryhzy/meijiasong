@@ -3,7 +3,6 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Address;
-
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Facades\Admin;
@@ -23,7 +22,6 @@ class AddressController extends Controller
     public function index()
     {
         return Admin::content(function (Content $content) {
-
             $content->header('地址');
             $content->description('列表');
 
@@ -40,7 +38,6 @@ class AddressController extends Controller
     public function edit($id)
     {
         return Admin::content(function (Content $content) use ($id) {
-
             $content->header('地址');
             $content->description('编辑');
 
@@ -56,7 +53,6 @@ class AddressController extends Controller
     public function create()
     {
         return Admin::content(function (Content $content) {
-
             $content->header('地址');
             $content->description('添加');
 
@@ -72,7 +68,6 @@ class AddressController extends Controller
     protected function grid()
     {
         return Admin::grid(Address::class, function (Grid $grid) {
-
             $grid->id('ID')->sortable();
 
             $grid->created_at();
@@ -87,7 +82,7 @@ class AddressController extends Controller
      */
     public function gridSearch($grid)
     {
-          $grid->filter(function ($filter) {
+        $grid->filter(function ($filter) {
             // 如果过滤器太多，可以使用弹出模态框来显示过滤器.
             $filter->useModal();
 
@@ -108,14 +103,12 @@ class AddressController extends Controller
 
             // sql: ... WHERE `title` LIKE "%$input" OR `content` LIKE "%$input";
             $filter->where(function ($query) {
-
                 $query->where('title', 'like', "%{$this->input}%")
                     ->orWhere('content', 'like', "%{$this->input}%");
             }, 'Text');
 
             // sql: ... WHERE `rate` >= 6 AND `created_at` = {$input};
             $filter->where(function ($query) {
-
                 $query->whereRaw("`rate` >= 6 AND `created_at` = {$this->input}");
             }, 'Text');
 
@@ -127,8 +120,9 @@ class AddressController extends Controller
                     $query->where('address', 'like', "%{$input}%")->orWhere('email', 'like', "%{$input}%");
                 });
             }, '地址或手机号');
-          });
+        });
     }
+
     /**
      * Make a form builder.
      *
@@ -137,7 +131,6 @@ class AddressController extends Controller
     protected function form()
     {
         return Admin::form(Address::class, function (Form $form) {
-
             $form->display('id', 'ID');
 
             $form->display('created_at', 'Created At');

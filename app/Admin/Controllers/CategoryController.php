@@ -3,7 +3,6 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Category;
-
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Facades\Admin;
@@ -23,7 +22,6 @@ class CategoryController extends Controller
     public function index()
     {
         return Admin::content(function (Content $content) {
-
             $content->header('分类');
             $content->description('列表');
 
@@ -40,7 +38,6 @@ class CategoryController extends Controller
     public function edit($id)
     {
         return Admin::content(function (Content $content) use ($id) {
-
             $content->header('分类');
             $content->description('编辑');
 
@@ -56,7 +53,6 @@ class CategoryController extends Controller
     public function create()
     {
         return Admin::content(function (Content $content) {
-
             $content->header('分类');
             $content->description('添加');
 
@@ -71,7 +67,7 @@ class CategoryController extends Controller
      */
     public function gridSearch($grid)
     {
-          $grid->filter(function ($filter) {
+        $grid->filter(function ($filter) {
             // 如果过滤器太多，可以使用弹出模态框来显示过滤器.
             $filter->useModal();
 
@@ -84,8 +80,9 @@ class CategoryController extends Controller
             $filter->equal('type', '实物？')->select([1 => '是', 2 => '否']);
             $filter->equal('status', '显示？')->select([1 => '是', 0 => '否']);
             $filter->between('created_at', '创建时间')->datetime();
-          });
+        });
     }
+
     /**
      * Make a grid builder.
      *
@@ -94,13 +91,12 @@ class CategoryController extends Controller
     protected function grid()
     {
         return Admin::grid(Category::class, function (Grid $grid) {
-
             $grid->id('ID')->sortable();
             $grid->column('title', '类名');
             $grid->description('说明');
 
             $states = [
-                'on'  => ['value' => 1, 'text' => 'YES'],
+                'on' => ['value' => 1, 'text' => 'YES'],
                 'off' => ['value' => 0, 'text' => 'NO'],
             ];
             $grid->type(' 实物？')->switch($states);
@@ -127,12 +123,11 @@ class CategoryController extends Controller
     protected function form()
     {
         return Admin::form(Category::class, function (Form $form) {
-
             $form->display('id', 'ID');
             $form->text('title', '类名');
             $form->text('description', '说明');
             $states = [
-                'on'  => ['value' => 1, 'text' => 'YES', 'color' => 'success'],
+                'on' => ['value' => 1, 'text' => 'YES', 'color' => 'success'],
                 'off' => ['value' => 0, 'text' => 'NO', 'color' => 'danger'],
             ];
             $form->switch('type', '实 物 ？ ')->states($states);

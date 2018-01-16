@@ -3,19 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\CancelOrder;
-use App\Policies\ConfigPolicy;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Pay;
-use EasyWeChat\Foundation\Application;
-use EasyWeChat\Payment\Order as PayOrder;
 use Carbon\Carbon;
-use Validator;
 use App\Events\OrderItemEvent;
 use App\Events\OrderEvent;
-use Cart;
-use Log;
 
 class WechatController extends Controller
 {
@@ -23,7 +17,6 @@ class WechatController extends Controller
     {
         $this->middleware('auth:api')->except(['update']);
     }
-
 
     public function defaultAddress()
     {
@@ -41,33 +34,33 @@ class WechatController extends Controller
         $user = auth()->user();
         $wxPay = Pay::PAY_WEIXIN_ID;
         $type = $request->type ?: 2; //充值=> 1，购物 => 2
-        $pay_id = $type == 1 ?  $wxPay: $request->pay_id;
-        $data = array(
+        $pay_id = $type == 1 ? $wxPay : $request->pay_id;
+        $data = [
             'amount' => $request->amount,
             'total' => $request->total,
             'discount' => $request->discount,
             'pay_id' => $pay_id,
             'type' => $type,
-            'is_discount' => $request->discount > 0 ? 1 : 0,//是否使用抵扣
-        );
+            'is_discount' => $request->discount > 0 ? 1 : 0, //是否使用抵扣
+        ];
         if ($pay_id == 1 && $user->balance < $request->amount) {
             return response()->json(['data' => '', 'status' => 0], 422);
         }
 
         //送货信息
         if ($type == 2) {
-             $address = $user->defaultAddress()->only(['receiver', 'phone', 'areas', 'details', 'latitude', 'longitude']);
-             $data['receiver'] = $address['receiver'];
-             $data['phone'] = $address['phone'];
-             $data['address'] = $address['areas'] . $address['details'];
-	     $data['remarks'] = $request->remarks;//备注
-	     $data['latitude'] = $address['latitude'];
-	     $data['longitude'] = $address['longitude'];
+            $address = $user->defaultAddress()->only(['receiver', 'phone', 'areas', 'details', 'latitude', 'longitude']);
+            $data['receiver'] = $address['receiver'];
+            $data['phone'] = $address['phone'];
+            $data['address'] = $address['areas'] . $address['details'];
+            $data['remarks'] = $request->remarks;//备注
+            $data['latitude'] = $address['latitude'];
+            $data['longitude'] = $address['longitude'];
         }
-        $data['out_trade_no'] = date("YmdHis") . rand(1000, 9999);
+        $data['out_trade_no'] = date('YmdHis') . rand(1000, 9999);
         $data['prepay_id'] = $pay_id == 2 ? $this->getPrepayId($request, $data['out_trade_no']) : '';
         $order = $user->order()->create($data);
-        #15分钟自动取消待付款
+        //15分钟自动取消待付款
         CancelOrder::dispatch($order)->delay(Carbon::now()->addMinutes(15));
         //获取购物车商品
         if ($cart = request()->cart) {
@@ -76,7 +69,7 @@ class WechatController extends Controller
                 'product_id' => $cart['id'],
                 'name' => $cart['name'],
                 'price' => $cart['price'],
-                'number' =>$cart['number'],
+                'number' => $cart['number'],
                 'amount' => request()->amount,
                 'attributes' => $cart['attributes']
             ]);
@@ -103,16 +96,17 @@ class WechatController extends Controller
         }
 
         if (21 === $order['status'] || 41 === $order['status']) {
-            return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
+            return toXml(['return_code' => 'SUCCESS', 'return_msg' => 'OK']);
         }
-        $status = $order['type'] == 1 ? 41: 21;
+        $status = $order['type'] == 1 ? 41 : 21;
         $order->update([
             'status' => $status
         ]);
-        #后续操作
+        event(new OrderEvent($order));
+        //后续操作
         $order->ifShopping();
         $order->ifRecharge();
-        return toXml(array('return_code' => 'SUCCESS', 'return_msg' => 'OK'));
+        return toXml(['return_code' => 'SUCCESS', 'return_msg' => 'OK']);
     }
 
     /**微信统一下单
@@ -120,7 +114,7 @@ class WechatController extends Controller
      */
     public function getPrepayId($request, $out_trade_no)
     {
-        $params = array(
+        $params = [
             'appid' => config('wechat.mini_program.app_id'),
             'mch_id' => config('wechat.payment.merchant_id'),
             'nonce_str' => getNonceStr('32'),
@@ -132,50 +126,17 @@ class WechatController extends Controller
             'trade_type' => 'JSAPI',
             'notify_url' => 'http://meijiasong.mandokg.com/wechat/payment/notify',
             'openid' => auth()->user()->openid
-        );
+        ];
 
         $params['sign'] = makeSign($params);
         $xml = toXml($params);
-        $url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
+        $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
         $res = fromXml(postXmlCurl($xml, $url, false, 6));
         // dd($params,$xml, $res);
         if ($res['return_code'] == 'SUCCESS') {
             return $res['prepay_id'];
         } else {
-            return response()->json(array('info' => $res['return_msg']), 400);
+            return response()->json(['info' => $res['return_msg']], 400);
         }
-    }
-
-
-
-    // 支付结果通知
-    public function handleNotify()
-    {
-        $response = $app->payment->handleNotify($this->getNotify($notify, $successful));
-        return $response;
-    }
-
-    public function getNotify($notify, $successful)
-    {
-        // 使用通知里的 "微信支付订单号" 或者 "商户订单号" 去自己的数据库找到订单
-        $order = 查询订单($notify->out_trade_no);
-        if (!$order) { // 如果订单不存在
-            return 'Order not exist.'; // 告诉微信，我已经处理完了，订单没找到，别再通知我了
-        }
-        // 如果订单存在
-        // 检查订单是否已经更新过支付状态
-        if ($order->paid_at) { // 假设订单字段“支付时间”不为空代表已经支付
-            return true; // 已经支付成功了就不再更新了
-        }
-        // 用户是否支付成功
-        if ($successful) {
-            // 不是已经支付状态则修改为已经支付状态
-            $order->paid_at = time(); // 更新支付时间为当前时间
-            $order->status = 'paid';
-        } else { // 用户支付失败
-            $order->status = 'paid_fail';
-        }
-        $order->save(); // 保存订单
-        return true; // 返回处理完成
     }
 }

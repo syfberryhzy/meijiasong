@@ -21,7 +21,6 @@ class ExampleController extends Controller
     public function index()
     {
         return Admin::content(function (Content $content) {
-
             $content->header('header');
             $content->description('description');
 
@@ -38,7 +37,6 @@ class ExampleController extends Controller
     public function edit($id)
     {
         return Admin::content(function (Content $content) use ($id) {
-
             $content->header('header');
             $content->description('description');
 
@@ -54,7 +52,6 @@ class ExampleController extends Controller
     public function create()
     {
         return Admin::content(function (Content $content) {
-
             $content->header('header');
             $content->description('description');
 
@@ -70,7 +67,6 @@ class ExampleController extends Controller
     protected function grid()
     {
         return Admin::grid(YourModel::class, function (Grid $grid) {
-
             $grid->id('ID')->sortable();
 
             $grid->created_at();
@@ -86,7 +82,6 @@ class ExampleController extends Controller
     protected function form()
     {
         return Admin::form(YourModel::class, function (Form $form) {
-
             $form->display('id', 'ID');
 
             $form->display('created_at', 'Created At');

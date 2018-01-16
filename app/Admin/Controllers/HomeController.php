@@ -15,7 +15,6 @@ class HomeController extends Controller
     {
         \Auth::login(\App\Models\User::find(1));
         return Admin::content(function (Content $content) {
-
             $content->header('后台首页');
             $content->description('展示后台配置信息');
 

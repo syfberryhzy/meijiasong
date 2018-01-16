@@ -5,13 +5,13 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\AdminConfig;
 use App\Models\Address;
-use App\Models\Product;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Carbon\Carbon;
 
 class ConfigPolicy
 {
     use HandlesAuthorization;
+
     /**
      * 匹配配送距离和价格
      * @param  Address $address [description]
@@ -26,23 +26,24 @@ class ConfigPolicy
 
         return $address;
     }
+
     //商家信息详情
     public function shopInfo()
     {
         $configs = collect(AdminConfig::all()->toArray())->pluck('value');
-        $pictures =  [
+        $pictures = [
             config('app.url') . '/uploads/' . $configs[AdminConfig::PICTURES1_IDS - 1],
             config('app.url') . '/uploads/' . $configs[AdminConfig::PICTURES2_IDS - 1],
             config('app.url') . '/uploads/' . $configs[AdminConfig::PICTURES3_IDS - 1],
         ];
         $data = [
-            'shopname' =>  $configs[AdminConfig::WEBNAME_ID - 1],
+            'shopname' => $configs[AdminConfig::WEBNAME_ID - 1],
             'opentimes' => $configs[AdminConfig::OPENTIMES_ID - 1],
             'sendtimes' => $configs[AdminConfig::SENDTIMES_ID - 1],
-            'address'  => $configs[AdminConfig::ADDRESS_ID - 1],
-            'tel'  => $configs[AdminConfig::SHOPTEL_ID - 1],
+            'address' => $configs[AdminConfig::ADDRESS_ID - 1],
+            'tel' => $configs[AdminConfig::SHOPTEL_ID - 1],
             'sendmess' => $configs[AdminConfig::SENDMESS_ID - 1],
-            'standard' =>  $configs[AdminConfig::STANDARD_ID - 1],
+            'standard' => $configs[AdminConfig::STANDARD_ID - 1],
             'activity' => $configs[AdminConfig::ACTIVITY_ID - 1],
             'service' => $configs[AdminConfig::SERVICE_ID - 1],
             'standard' => $configs[AdminConfig::STANDARD_ID - 1],
@@ -51,6 +52,7 @@ class ConfigPolicy
         ];
         return $data;
     }
+
     /**
      * 商家地址
      * @return [type] [description]
@@ -58,7 +60,7 @@ class ConfigPolicy
     public function shopLocation()
     {
         $configAddr = AdminConfig::where('id', AdminConfig::ADDRESS_ID)->first();
-        $location = str_replace(array('[', ']'), '', $configAddr->description);
+        $location = str_replace(['[', ']'], '', $configAddr->description);
 
         return explode(',', $location);
     }
@@ -78,7 +80,7 @@ class ConfigPolicy
         // dd($sendDatas);
         $sendfee = 0;
         foreach ($sendDatas as $key => $vo) {
-            if ($key+1 == count($sendDatas) && $sendfee == 0) {
+            if ($key + 1 == count($sendDatas) && $sendfee == 0) {
                 $sendfee = $vo[2];
             }
             if ($vo[0] <= $distance && $vo[1] > $distance) {
@@ -87,6 +89,7 @@ class ConfigPolicy
         }
         return $sendfee;
     }
+
     /**
    * 计算两点地理坐标之间的距离
    * @param  Decimal $longitude1 起点经度
@@ -110,20 +113,21 @@ class ConfigPolicy
         $radLat2 = $latitude2 * $PI / 180.0;
 
         $radLng1 = $longitude1 * $PI / 180.0;
-        $radLng2 = $longitude2 * $PI /180.0;
+        $radLng2 = $longitude2 * $PI / 180.0;
 
         $a = $radLat1 - $radLat2;
         $b = $radLng1 - $radLng2;
 
-        $distance = 2 * asin(sqrt(pow(sin($a/2), 2) + cos($radLat1) * cos($radLat2) * pow(sin($b/2), 2)));
+        $distance = 2 * asin(sqrt(pow(sin($a / 2), 2) + cos($radLat1) * cos($radLat2) * pow(sin($b / 2), 2)));
         $distance = $distance * $EARTH_RADIUS * 1000;
 
-        if ($unit==2) {
+        if ($unit == 2) {
             $distance = $distance / 1000;
         }
 
         return round($distance, $decimal);
     }
+
     // 抵扣积分比例
     public function getPoints()
     {
@@ -134,22 +138,21 @@ class ConfigPolicy
 
     public function getIntegral(User $user, $products)
     {
-        #商品抵扣比例
+        //商品抵扣比例
         $points = $this->getPoints();
         $inte = $points[0];
         $money = $points[1];
-        #获取可兑换商品的总个数
+        //获取可兑换商品的总个数
         $datas = array_map(function ($val) {
             $count = $val['is_default'] == 1 ? $val['number'] : 0;
             $price = $val['price'] * $val['number'];
             return ['count' => $count, 'total_price' => $price];
         }, $products);
         $counts = collect($datas)->sum('count');
-        #商品总价
+        //商品总价
         $total_price = collect($datas)->sum('total_price');
 
-
-        #统计用户可兑换商品的最大值
+        //统计用户可兑换商品的最大值
         $myInte = $user->integral;
         $number = $myInte % $points[0];
         $counts = $counts <= $number ? $counts : $number;
@@ -158,23 +161,23 @@ class ConfigPolicy
             $moneys = 0;
             $isShow = 0;
         }
-        $isShow= 1;
+        $isShow = 1;
         $intes = number_format($number * $points[0], 0);
         $moneys = number_format($number * $points[1], 0);
-        return ['inte' => $intes, 'money' => $moneys, 'myinte' =>number_format($myInte, 0), 'total' => $total_price, 'amount' => $total_price - $moneys, 'is_show'=> $isShow];
+        return ['inte' => $intes, 'money' => $moneys, 'myinte' => number_format($myInte, 0), 'total' => $total_price, 'amount' => $total_price - $moneys, 'is_show' => $isShow];
     }
 
     public function configSend()
     {
         $data = AdminConfig::where('id', AdminConfig::SENDTIMES_ID)->first();
-        $sendtimes = explode("-", trim($data->value));
+        $sendtimes = explode('-', trim($data->value));
         $sendminutes = $data->description ? $data->description : 0;
         return  [$sendtimes, $sendminutes];
     }
 
     public function defaultSend()
     {
-        #默认配送时间
+        //默认配送时间
         $data = $this->configSend();
         $sendtimes = $data[0];
         $sendminutes = $data[1];
@@ -183,7 +186,7 @@ class ConfigPolicy
         $ordertime = Carbon::now('Asia/Shanghai')->addMinutes($sendminutes);
 
         // dd($sendtimes[0]);
-        #截止时间的前半个小时
+        //截止时间的前半个小时
         $end = Carbon::parse($sendtimes[1])->subMinutes(30);
         $isToday = $ordertime->lte($end);
         // dd($isToday);
@@ -195,11 +198,11 @@ class ConfigPolicy
         return ['weeks' => $weeks, 'times' => $times, 'time' => substr($ordertime->toTimeString(), 0, 5), 'istoday' => $isToday];
     }
 
-    #配送日期集合
+    //配送日期集合
     public function getWeeks($sendtimes, $isToday)
     {
         $start = $isToday ? 0 : 1;
-        for ($i = 0 + $start; $i< 7 + $start; $i++) {
+        for ($i = 0 + $start; $i < 7 + $start; $i++) {
             $weeks[] = substr(Carbon::now('Asia/Shanghai')->addDays($i)->toDateString(), 5, 5);
         }
         return $weeks;
@@ -211,14 +214,13 @@ class ConfigPolicy
         $data = $this->configSend();
         $sendtimes = $data[0];
 
-
         $defaultTime = $defaultTime ? $defaultTime : Carbon::now('Asia/Shanghai');
         $isToday = Carbon::parse($defaultTime)->isToday();
 
         $start = Carbon::parse($sendtimes[0]);
         $end = Carbon::parse($sendtimes[1]);
 
-        #开始和截止时间的时间差
+        //开始和截止时间的时间差
         $diffMinutes = $start->diffInMinutes($end);
         $number = $diffMinutes / 30;
         $residue = $diffMinutes % 30;
@@ -245,7 +247,7 @@ class ConfigPolicy
         $datas = [];
         foreach ($times as $key => $val) {
             if ($key < count($times) - 1) {
-                $datas[] = $val. ' - ' . $times[$key+1];
+                $datas[] = $val . ' - ' . $times[$key + 1];
             }
         }
         return $datas;

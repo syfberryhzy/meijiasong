@@ -23,7 +23,7 @@ class AddressFormRequest extends FormRequest
      */
     public function rules()
     {
-         return [
+        return [
            'recevire' => 'required',
           //  'recevire' => 'required|max:10|min:2',
           //  'phone' => 'required|numeric|min:11|max:11',
@@ -34,7 +34,7 @@ class AddressFormRequest extends FormRequest
 
     public function message()
     {
-         return [
+        return [
              'receiver.required' => '收货人姓名必填',
             //  'receiver.max' => '收货人姓名不能大于10个字',
             //  'receiver.min' => '收货人姓名不能小于2个字',

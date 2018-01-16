@@ -14,13 +14,8 @@ class UserExporter extends AbstractExporter
     {
         $table = $this->getTable();
         $data = $this->getData();
-
         $tableDatas = self::getDatas($table, $data);
-
         $filename = '美家送'. $tableDatas[1] .'.csv';
-
-
-
         $output = $tableDatas[0];
 
         $headers = [

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Cart;
 use Illuminate\Database\Eloquent\Model;
 
 class Cart extends Model
@@ -14,6 +13,7 @@ class Cart extends Model
     {
         return '';
     }
+
     //添加
     public function add()
     {
@@ -24,8 +24,6 @@ class Cart extends Model
     {
         return '';
     }
-
-
 
     public function delete()
     {

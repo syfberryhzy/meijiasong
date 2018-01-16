@@ -4,24 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Policies\ConfigPolicy;
-use App\Models\User;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Category;
 use App\Models\Shelf;
 use App\Models\Product;
-use App\Models\Address;
 use App\Models\Integral;
-use App\Models\Balance;
 use App\Models\Pay;
 
 class OrderController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('auth:api');
     }
+
     /**
      * 订单首页
      * @param  Request $request [description]
@@ -35,7 +31,7 @@ class OrderController extends Controller
         foreach ($orders as $key => $order) {
             if ($order['type'] == 2 && $order['items']) {
                 $image = $order['items']['0']['product']['shelf']['image']['0'];
-                $orders[$key]['image'] =  $image ? config('app.url').'/uploads/'. $image : '/assets/goods.png';
+                $orders[$key]['image'] = $image ? config('app.url') . '/uploads/' . $image : '/assets/goods.png';
                 $orders[$key]['status'] = $this->getStatus($order['status']);
                 $datas[] = $orders[$key];
             }
@@ -51,6 +47,7 @@ class OrderController extends Controller
         $order['reward'] = $inte ? $inte : '0.00';
         return response()->json(['data' => $order, 'status' => 1], 201);
     }
+
     /**
      * 各状态订单个数
      * @return [type] [description]
@@ -58,11 +55,12 @@ class OrderController extends Controller
     public function counts()
     {
         $datas = [];
-        for ($i=1; $i<=4; $i++) {
-            $datas[] = Order::where('user_id', auth()->id())->where('type', '2')->where('status', 'like', $i.'%')->count();
+        for ($i = 1; $i <= 4; $i++) {
+            $datas[] = Order::where('user_id', auth()->id())->where('type', '2')->where('status', 'like', $i . '%')->count();
         }
         return response()->json(['data' => $datas, 'status' => 1], 201);
     }
+
     public function getImage($id)
     {
         $data = Product::find($id)->shelf_id;
@@ -105,12 +103,12 @@ class OrderController extends Controller
         if ($request->status) {
             $order->status = $request->status == 4 ? 41 : 31;
         } else {
-            return response()->json([ 'data' => [], 'info' => '系统有误', 'status' => 0], 403);
+            return response()->json(['data' => [], 'info' => '系统有误', 'status' => 0], 403);
         }
         if ($order->save()) {
-            return response()->json([ 'data' => [], 'info' => '操作完成', 'url' => '',  'status' => 1], 201);
+            return response()->json(['data' => [], 'info' => '操作完成', 'url' => '',  'status' => 1], 201);
         }
-        return response()->json([ 'data' => [], 'info' => '操作失败', 'status' => 0], 201);
+        return response()->json(['data' => [], 'info' => '操作失败', 'status' => 0], 201);
     }
 
     public function recharge(Shelf $shelf, Product $product)
@@ -130,14 +128,14 @@ class OrderController extends Controller
               'user_id' => 1,
               'order_id' => $order->id,
               'product_id' => $product->id,
-              'name' => '充值卡:'.$product->name,
+              'name' => '充值卡:' . $product->name,
               'amount' => $product->price,
               'total' => $product->price,
               'attributes' => $product->characteres,
             ]);
-            return response()->json([ 'data' => [], 'info' => '支付成功', 'status' => 1], 201);
+            return response()->json(['data' => [], 'info' => '支付成功', 'status' => 1], 201);
         }
-        return response()->json([ 'data' => [], 'info' => '操作失败', 'status' => 0], 201);
+        return response()->json(['data' => [], 'info' => '操作失败', 'status' => 0], 201);
     }
 
     public function buy(Request $request)
@@ -156,15 +154,15 @@ class OrderController extends Controller
         $count = $cart->count();
         $subtotal = $cart->subtotal;
         foreach ($carts as $cart) {
-            $products[] = array(
+            $products[] = [
                 'id' => $cart->model->id,
                 'name' => $cart->name,
                 'image' => $cart->options->image,
-                'price' => $cart->model->price ,
+                'price' => $cart->model->price,
                 'points' => $cart->model->points,
                 'is_default' => $cart->model->is_default,
                 'number' => $cart->qty
-            );
+            ];
         }
         // $products = Product::whereIn('id', array(1, 2, 3))->get()->toArray();
         // $user = auth()->user();
@@ -183,4 +181,4 @@ class OrderController extends Controller
         $datas = $configPolicy->defaultSend();
         return response()->json(['data' => $datas, 'info' => '', 'status' => 1], 201);
     }
-  }
+}

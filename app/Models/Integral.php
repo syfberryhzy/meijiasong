@@ -3,12 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Order;
 
 class Integral extends Model
 {
     protected $guarded = [];
+
     /**
      * The "booting" method of the model.
      *

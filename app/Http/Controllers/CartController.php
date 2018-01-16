@@ -28,7 +28,7 @@ class CartController extends Controller
      */
     public function index()
     {
-        $identifier = 'user.'.auth()->id().'.cart';
+        $identifier = 'user.' . auth()->id() . '.cart';
         $this->cart->restore($identifier);
         try {
             $this->cart->store($identifier);
@@ -52,7 +52,7 @@ class CartController extends Controller
      */
     public function create(Shelf $shelf, Product $product)
     {
-        $identifier = 'user.'.auth()->id().'.cart';
+        $identifier = 'user.' . auth()->id() . '.cart';
         $this->cart->restore($identifier);
 
         $cacheKey = "{$identifier}.shelf.{$shelf->id}.product.{$product->id}";
@@ -84,7 +84,6 @@ class CartController extends Controller
             $this->cart->store($identifier);
         }
 
-
         return response($this->cart->content());
     }
 
@@ -99,7 +98,7 @@ class CartController extends Controller
             'qty' => 'required'
         ]);
 
-        $identifier = 'user.'.auth()->id().'.cart';
+        $identifier = 'user.' . auth()->id() . '.cart';
         $this->cart->restore($identifier);
 
         $cacheKey = "{$identifier}.shelf.{$shelf->id}.product.{$product->id}";
@@ -118,7 +117,6 @@ class CartController extends Controller
             \DB::table('shoppingcart')->where(['identifier' => $identifier])->delete();
             $this->cart->store($identifier);
         }
-
 
         return response($this->cart->content());
     }

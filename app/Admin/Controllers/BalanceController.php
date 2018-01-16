@@ -4,8 +4,6 @@ namespace App\Admin\Controllers;
 
 use App\Models\Balance;
 use App\Models\User;
-use App\Models\Order;
-
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Facades\Admin;
@@ -25,7 +23,6 @@ class BalanceController extends Controller
     public function index()
     {
         return Admin::content(function (Content $content) {
-
             $content->header('余额明细');
             $content->description('列表');
 
@@ -42,7 +39,6 @@ class BalanceController extends Controller
     public function edit($id)
     {
         return Admin::content(function (Content $content) use ($id) {
-
             $content->header('余额明细');
             $content->description('编辑');
 
@@ -58,7 +54,6 @@ class BalanceController extends Controller
     public function create()
     {
         return Admin::content(function (Content $content) {
-
             $content->header('余额明细');
             $content->description('添加');
 
@@ -77,10 +72,10 @@ class BalanceController extends Controller
             $grid->model()->orderBy('id', 'desc');
             $grid->id('ID')->sortable();
             $grid->column('order_id', '订单ID')->display(function ($orderid) {
-                return '<a href="/admin/orders/order_menus?id='. $orderid .'"><i class="fa">' . $orderid . '</i></a>';
+                return '<a href="/admin/orders/order_menus?id=' . $orderid . '"><i class="fa">' . $orderid . '</i></a>';
             });
             $grid->column('user.name', '用户名')->display(function ($username) {
-                return '<a href="/admin/usergroup/users?id='. $this->user_id .'"><i class="fa">' . $username . '</i></a>';
+                return '<a href="/admin/usergroup/users?id=' . $this->user_id . '"><i class="fa">' . $username . '</i></a>';
             });
 
             $grid->type('方式')->display(function ($type) {
@@ -113,14 +108,14 @@ class BalanceController extends Controller
     public function gridSearch($grid)
     {
         $grid->filter(function ($filter) {
-        // 如果过滤器太多，可以使用弹出模态框来显示过滤器.
+            // 如果过滤器太多，可以使用弹出模态框来显示过滤器.
             $filter->useModal();
 
             // 禁用id查询框
             $filter->disableIdFilter();
 
             $filter->equal('order_id', '订单ID');
-            $filter->equal('type', '方式')->select([ 1 => '充值', 2 => '消费', 3 => '退回']);
+            $filter->equal('type', '方式')->select([1 => '充值', 2 => '消费', 3 => '退回']);
             $filter->equal('user_id', '用户名')->select(User::all()->pluck('name', 'id'));
             $filter->between('created_at', '创建时间')->datetime();
         });
@@ -134,7 +129,6 @@ class BalanceController extends Controller
     protected function form()
     {
         return Admin::form(Balance::class, function (Form $form) {
-
             $form->display('id', 'ID');
 
             $form->display('created_at', 'Created At');

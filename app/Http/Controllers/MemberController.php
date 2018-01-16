@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use Carbon\Carbon;
 
 class MemberController extends Controller
 {
-    #个人中心首页
+    //个人中心首页
     public function register(Request $request)
     {
         $data = $this->getUserInfo($request);
@@ -20,6 +19,7 @@ class MemberController extends Controller
         // return response()->json([ 'data' => $user, 'info' => '登录成功！', 'status' => 1], 201);
         return $user;
     }
+
     /**
      * [update description]
      * @param  Request $request [description]
@@ -32,11 +32,11 @@ class MemberController extends Controller
         $code = $request->code;
 
         $client = new \GuzzleHttp\Client();
-        $url = "https://api.weixin.qq.com/sns/jscode2session"
+        $url = 'https://api.weixin.qq.com/sns/jscode2session'
                  . "?appid={$appid}"
                  . "&secret={$secret}"
                  . "&js_code={$code}"
-                 . "&grant_type=authorization_code";
+                 . '&grant_type=authorization_code';
         $res = $client->request('GET', $url);
         $data = json_decode($res->getBody(), true);
 
@@ -46,6 +46,7 @@ class MemberController extends Controller
 
         return $data;
     }
+
     /**
      * 个人编辑
      * @param  Request $request [description]

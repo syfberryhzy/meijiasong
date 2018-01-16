@@ -2,16 +2,11 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use App\Models\Order;
 
-class OrderItemEvent implements ShouldBroadcast
+class OrderItemEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -27,25 +22,5 @@ class OrderItemEvent implements ShouldBroadcast
     {
         $this->products = $products;
         $this->order = $order;
-    }
-
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return \Illuminate\Broadcasting\Channel|array
-     */
-    public function broadcastOn()
-    {
-        return new PrivateChannel('order.1');
-    }
-
-    /**
-     * 指定广播数据
-     *
-     * @return array
-     */
-    public function broadcastWith()
-    {
-        return ['num' => Order::where('status', 1)->count()];
     }
 }

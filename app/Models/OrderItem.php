@@ -3,9 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Order;
-use App\Models\User;
-use App\Models\Product;
 
 class OrderItem extends Model
 {
@@ -15,7 +12,7 @@ class OrderItem extends Model
     {
         static::bootTraits();
         static::created(function ($query) {
-            #销量自增
+            //销量自增
             $query->product->increment('sales', $query->number);
         });
     }
@@ -29,7 +26,6 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
-
 
     public function user()
     {

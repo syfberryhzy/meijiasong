@@ -4,12 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Pay;
-use App\Models\OrderItem;
-use App\Models\Integral;
-use App\Models\Balance;
-use App\Models\AdminConfig;
 
 class Order extends Model
 {
@@ -27,7 +21,6 @@ class Order extends Model
     const ORDER_FINISH = 4; //已完成
     const ORDER_FINISH_SEND = 41; //订单完成
     const ORDER_FINISH_CONFIRM = 42; //确认收货
-
 
     protected $guarded = [];
 
@@ -50,7 +43,7 @@ class Order extends Model
     {
         if ($this->pay->isDeductible()) {
             $point = $this->discount * (AdminConfig::points());
-            #添加抵扣记录
+            //添加抵扣记录
             $this->changeIntegral([
                 'current' => $this->user->integral - $point,
                 'desc' => '支付抵扣',
@@ -64,7 +57,7 @@ class Order extends Model
     {
         if ($this->pay->isReward()) {
             $point = $this->total * ($this->pay->proportion);//奖励积分
-            #添加奖励记录
+            //添加奖励记录
             $this->changeIntegral([
                 'current' => $this->user->integral + $point,
                 'number' => $point,
@@ -98,6 +91,7 @@ class Order extends Model
             'type' => 1
         ]);
     }
+
     /**
      * 余额支付扣除
      * @return [type] [description]
@@ -146,20 +140,20 @@ class Order extends Model
         return $this->hasOne(Balance::class);
     }
 
-      /**
-      *
-      *
-      * @param $query
-      * @param $gender
-      * @return mixed
-      */
+    /**
+    *
+    *
+    * @param $query
+    * @param $gender
+    * @return mixed
+    */
     public function scopeGender(Builder $query, $status)
     {
         if (!in_array($status, ['1', '2', '21', '22', '3', '31', '32', '4', '41', '42'])) {
-             return $query;
+            return $query;
         }
 
-        return $query->where('status', 'like', $status.'%');
+        return $query->where('status', 'like', $status . '%');
     }
 
     public function ifShopping()

@@ -2,15 +2,12 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use App\Models\Order;
-
 
 class OrderEvent implements ShouldBroadcast
 {
@@ -38,13 +35,13 @@ class OrderEvent implements ShouldBroadcast
         return new PrivateChannel('order.1');
     }
 
-    // /**
-    //  * 指定广播数据
-    //  *
-    //  * @return array
-    //  */
-    // public function broadcastWith()
-    // {
-    //     return ['id' => $this->user->id];
-    // }
+    /**
+     * 指定广播数据
+     *
+     * @return array
+     */
+    public function broadcastWith()
+    {
+        return ['num' => Order::where('status', 1)->count()];
+    }
 }

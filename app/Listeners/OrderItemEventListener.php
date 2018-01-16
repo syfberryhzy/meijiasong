@@ -3,8 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\OrderItemEvent;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Models\OrderItem;
 
 class OrderItemEventListener
 {
@@ -28,7 +27,7 @@ class OrderItemEventListener
     {
         $order = $event->order;
         collect($event->products)->map(function ($item, $key) use ($order) {
-            $data =  array(
+            return [
                 'product_id' => $item->options->product_id,
                 'name' => $item->name,
                 'price' => $item->price,
@@ -36,8 +35,8 @@ class OrderItemEventListener
                 'amount' => $order->type == 1 ? $item->amount : ($item->price) * ($item->qty),
                 'order_id' => $order->id,
                 'attributes' => '',
-            );
-            $order->items()->create($data);
+            ];
         });
+        OrderItem::insert($data);
     }
 }

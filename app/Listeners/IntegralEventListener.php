@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\IntegralEvent;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class IntegralEventListener
 {

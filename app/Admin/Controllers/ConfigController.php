@@ -69,17 +69,17 @@ class ConfigController
                 if ($this->id <= ConfigModel::POINTS_ID) {
                     return "<a tabindex=\"0\" class=\"btn btn-xs btn-twitter\" role=\"button\" data-toggle=\"popover\" data-html=true title=\"Usage\" data-content=\"<code>config('$name');</code>\">$name</a>";
                 } else {
-                    return '<span class="label label-success">'. $name .'</span>';
+                    return '<span class="label label-success">' . $name . '</span>';
                 }
             });
             $grid->value('设置')->display(function ($value) {
-                if (preg_match("/(.*?(jpg|jpeg|gif|png))/", $value)) {
-                        return '<img src="'.config('app.url').'/uploads/'. $value.'" style="witdh:90px;height:90px;">';
+                if (preg_match('/(.*?(jpg|jpeg|gif|png))/', $value)) {
+                    return '<img src="' . config('app.url') . '/uploads/' . $value . '" style="witdh:90px;height:90px;">';
                 }
                 return $this->value;
             });
             $grid->description('说明')->display(function ($des) {
-                return $des ? '<div style="width:380px;padding:0px 10px 0px 10px;">'.$des.'</div>' : '';
+                return $des ? '<div style="width:380px;padding:0px 10px 0px 10px;">' . $des . '</div>' : '';
             });
 
             $grid->created_at('创建时间');
@@ -104,7 +104,7 @@ class ConfigController
                     $text = 'image';
                 }
                 $actions->disableEdit();
-                $actions->append('<a href="/admin/config/'.$actions->row->id.'/edit?slug='.$text.'"><i class="fa fa-edit"></i></a>');
+                $actions->append('<a href="/admin/config/' . $actions->row->id . '/edit?slug=' . $text . '"><i class="fa fa-edit"></i></a>');
             });
         });
     }
@@ -112,10 +112,9 @@ class ConfigController
     public function form($id = '')
     {
         return Admin::form(ConfigModel::class, function (Form $form) use ($id) {
-
             $form->display('id', 'ID');
             $form->text('name', '名称')->rules('required');
-            $url = request('_previous_') ? : request()->fullUrl();
+            $url = request('_previous_') ?: request()->fullUrl();
 
             if (isset(parse_url($url)['query'])) {
                 $query = parse_url($url, PHP_URL_QUERY);
@@ -137,5 +136,4 @@ class ConfigController
             $form->textarea('description', '说明')->help('规则：商家地址的说明格式：“ [经度,纬度] ”');
         });
     }
-
 }

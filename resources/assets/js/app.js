@@ -25,7 +25,7 @@ Vue.component('example', require('./components/Example.vue'));
 // });
 
 Echo.private(`order.1`)
-  .listen('OrderItemEvent', (e) => {
+  .listen('OrderEvent', (e) => {
       var audio = $("#audio-tips")[0];
       audio.pause();
       audio.play();

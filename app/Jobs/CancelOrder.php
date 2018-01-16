@@ -20,6 +20,7 @@ class CancelOrder implements ShouldQueue
      * @var int
      */
     public $tries = 5;
+
     /**
      * Create a new job instance.
      *
@@ -27,7 +28,7 @@ class CancelOrder implements ShouldQueue
      */
     public function __construct(Order $order)
     {
-         $this->order = $order;
+        $this->order = $order;
     }
 
     /**
@@ -38,7 +39,7 @@ class CancelOrder implements ShouldQueue
     public function handle()
     {
         if ($this->order['status'] == '1') {
-            #取消订单
+            //取消订单
             $this->order->update([
                 'status' => 31
             ]);

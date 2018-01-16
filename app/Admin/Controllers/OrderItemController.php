@@ -5,7 +5,6 @@ namespace App\Admin\Controllers;
 use App\Models\User;
 use App\Models\OrderItem;
 use App\Models\Order;
-
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Facades\Admin;
@@ -41,7 +40,6 @@ class OrderItemController extends Controller
     public function edit($id)
     {
         return Admin::content(function (Content $content) use ($id) {
-
             $content->header('订单详情');
             $content->description('编辑');
 
@@ -57,7 +55,6 @@ class OrderItemController extends Controller
     public function create()
     {
         return Admin::content(function (Content $content) {
-
             $content->header('订单详情');
             $content->description('添加');
 
@@ -76,9 +73,9 @@ class OrderItemController extends Controller
             // dd($grid, request()->path());
             $grid->id('ID')->sortable();
             $grid->order_id('订单编号');
-	    //$grid->column('order', '用户名');
+            //$grid->column('order', '用户名');
             $grid->name('商品名称 [属性]')->display(function ($name) {
-                return '<b>'. $name . '</b> [ ' . $this->attributes . ' ]';
+                return '<b>' . $name . '</b> [ ' . $this->attributes . ' ]';
             });
             $grid->price('单价');
             $grid->number('数量');
@@ -99,7 +96,7 @@ class OrderItemController extends Controller
      */
     public function gridSearch($grid)
     {
-          $grid->filter(function ($filter) {
+        $grid->filter(function ($filter) {
             // 如果过滤器太多，可以使用弹出模态框来显示过滤器.
             $filter->useModal();
 
@@ -109,8 +106,9 @@ class OrderItemController extends Controller
             $filter->like('name', '商品名称');
             $filter->equal('user_id', '用户名')->select(User::all()->pluck('name', 'id'));
             $filter->between('created_at', '创建时间')->datetime();
-          });
+        });
     }
+
     /**
      * Make a form builder.
      *
@@ -119,7 +117,6 @@ class OrderItemController extends Controller
     protected function form()
     {
         return Admin::form(OrderItem::class, function (Form $form) {
-
             $form->display('id', 'ID');
 
             $form->display('created_at', 'Created At');

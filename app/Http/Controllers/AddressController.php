@@ -2,25 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Policies\UserPolicy;
 use App\Policies\ConfigPolicy;
 use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\Category;
-use App\Models\Shelf;
-use App\Models\Product;
 use App\Models\Address;
-use App\Models\Integral;
-use App\Models\Balance;
-use App\Models\Pay;
 
 // use App\Http\Requests\AddressFormRequest;
 
 class AddressController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('auth:api');
@@ -33,7 +22,7 @@ class AddressController extends Controller
     public function index()
     {
         $address = auth()->user()->address;
-        return response()->json([ 'data' => $address, 'info' => '操作完成', 'status' => 1], 201);
+        return response()->json(['data' => $address, 'info' => '操作完成', 'status' => 1], 201);
     }
 
     // $address = Address::where('user_id', 1)->where('is_default', 1)->first();
@@ -45,9 +34,8 @@ class AddressController extends Controller
      */
     public function show(Address $address)
     {
-        return response()->json([ 'data' => $address, 'info' => '操作完成', 'status' => 1], 201);
+        return response()->json(['data' => $address, 'info' => '操作完成', 'status' => 1], 201);
     }
-
 
     /**
      * 添加地址
@@ -56,7 +44,6 @@ class AddressController extends Controller
      */
     public function create(Request $request)
     {
-
         $data = [
             'user_id' => auth()->id(),
             'receiver' => $request->receiver,
@@ -68,9 +55,9 @@ class AddressController extends Controller
         ];
 
         if ($address = Address::create($data)) {
-              return response()->json([ 'data' => $address, 'info' => '添加成功', 'status' => 1], 201);
+            return response()->json(['data' => $address, 'info' => '添加成功', 'status' => 1], 201);
         }
-        return response()->json([ 'data' => [], 'info' => '添加失败', 'status' => 0], 403);
+        return response()->json(['data' => [], 'info' => '添加失败', 'status' => 0], 403);
     }
 
     /**
@@ -99,9 +86,9 @@ class AddressController extends Controller
             if ($address->is_default == 1) {
                 Address::where('user_id', auth()->id())->where('id', '<>', $address->id)->update(['is_default' => 0]);
             }
-            return response()->json([ 'data' => $address, 'info' => '修改成功', 'status' => 1], 201);
+            return response()->json(['data' => $address, 'info' => '修改成功', 'status' => 1], 201);
         }
-        return response()->json([ 'data' => $address, 'info' => '修改失败', 'status' => 0], 201);
+        return response()->json(['data' => $address, 'info' => '修改失败', 'status' => 0], 201);
     }
 
     /**
@@ -112,9 +99,9 @@ class AddressController extends Controller
     public function delete(Address $address)
     {
         if ($address->delete()) {
-            return response()->json([ 'data' => [], 'info' => '删除成功', 'status' => 1], 201);
+            return response()->json(['data' => [], 'info' => '删除成功', 'status' => 1], 201);
         }
-        return response()->json([ 'data' => $address, 'info' => '删除失败', 'status' => 0], 201);
+        return response()->json(['data' => $address, 'info' => '删除失败', 'status' => 0], 201);
     }
 
     public function default()

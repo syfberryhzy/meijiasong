@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Shelf;
 
 class Category extends Model
 {
@@ -11,6 +10,7 @@ class Category extends Model
     const ON = 1;
     const OFF = 0;
     protected $hidden = ['created_at', 'updated_at'];
+
     public function shelf()
     {
         return $this->hasMany(Shelf::class);

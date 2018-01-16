@@ -2,14 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Shelf;
 use App\Models\Product;
-use App\Models\Address;
-use App\Models\Integral;
-use App\Models\Balance;
 use App\Models\Pay;
 use App\Models\AdminConfig as Config;
 use Carbon\Carbon;
@@ -25,13 +21,13 @@ class WebController extends Controller
         $this->middleware('auth:api')->only(['index']);
     }
 
-    #首页
+    //首页
     public function index()
     {
-        #商品列表
- //       $categories = Cache::remember('categories', 60, function () {
-           $categories = Category::where('status', Category::ON)->where('id', '<>', Category::RECHARGE_ID)->with('shelf', 'shelf.product')->get()->toArray();
-   //     });
+        //商品列表
+        //       $categories = Cache::remember('categories', 60, function () {
+        $categories = Category::where('status', Category::ON)->where('id', '<>', Category::RECHARGE_ID)->with('shelf', 'shelf.product')->get()->toArray();
+        //     });
 
         $datas = [];
         foreach ($categories as $cate) {
@@ -46,13 +42,13 @@ class WebController extends Controller
                     $food['id'] = $val['id'];
                     $food['name'] = $val['name'];
                     $food['attributes'] = $val['attributes'];
-                    $food['image'] = config('app.url'). '/uploads/'. $val['image'][0];
+                    $food['image'] = config('app.url') . '/uploads/' . $val['image'][0];
                     $food['info'] = $product[0]['content'];
                     $food['cateCount'] = count($product);
                     $food['Count'] = $this->shoppingCartItemCount($val['id'], $product);
                     $food['price'] = collect($product)->min('price'); //最低价格
                     $food['sellCount'] = collect($product)->sum('sales'); //销量之和
-                    $food['cate'] = array_map( function ($vo) {
+                    $food['cate'] = array_map(function ($vo) {
                         $cate['cate_id'] = $vo['id'];
                         $cate['characters'] = $vo['characters'];
                         $cate['price'] = $vo['price'];
@@ -105,7 +101,7 @@ class WebController extends Controller
             return response()->json(['data' => [], 'info' => '暂无商品上架', 'status' => 0], 403);
         }
         $shelf['image'] = array_map(function ($img) {
-            return config('app.url'). '/uploads/'. $img;
+            return config('app.url') . '/uploads/' . $img;
         }, $shelf['image']);
         $shelf['sellCount'] = collect($product)->sum('sales'); //销量之和
         $min_price = collect($product)->min('price');
@@ -124,11 +120,12 @@ class WebController extends Controller
             $point = $product[0]['points'];
             $point = (!$point || $point == 0) ? 1 : $point;
             $per = $point * $configPoints[1] / $configPoints[0];
-            $shelf['deductible'] = '可用'. $point .'积分抵扣'. $per . '元';
+            $shelf['deductible'] = '可用' . $point . '积分抵扣' . $per . '元';
         }
 
         return response()->json(['data' => $shelf, 'status' => 1], 201);
     }
+
     /**
      * 充值中心
      * @return [type] [description]
@@ -147,13 +144,13 @@ class WebController extends Controller
             }
         }
         // dd($recharges);
-        return response()->json([ 'data' => $datas, 'info' => '', 'status' => 1], 201);
+        return response()->json(['data' => $datas, 'info' => '', 'status' => 1], 201);
     }
 
     public function checkOpen()
     {
-        #是否休息日
-        #开业时间段
+        //是否休息日
+        //开业时间段
 
         if ($data = Config::where('id', Config::OPENTIMES_ID)->first()) {
             $opentimes = explode('-', $data['value']);
@@ -164,12 +161,12 @@ class WebController extends Controller
         $first = Carbon::parse($opentimes[0]);
         $second = Carbon::parse($opentimes[1]);
 
-        return response()->json([ 'data' => Carbon::parse('now')->between($first, $second), 'info' => '', 'status' => 1], 201);
+        return response()->json(['data' => Carbon::parse('now')->between($first, $second), 'info' => '', 'status' => 1], 201);
     }
 
     public function checkSend()
     {
-        #配送时间段
+        //配送时间段
         if ($data = Config::where('id', Config::SENDTIMES_ID)->first()) {
             $sendtimes = explode('-', $data['value']);
         } else {
@@ -187,7 +184,7 @@ class WebController extends Controller
     {
         $config = new ConfigPolicy();
         $data = $config->shopInfo();
-        return response()->json([ 'data' => $data, 'info' => '', 'status' => 1], 201);
+        return response()->json(['data' => $data, 'info' => '', 'status' => 1], 201);
     }
 
     public function pays()
@@ -200,16 +197,16 @@ class WebController extends Controller
             $data[1][] = $pay;
         }
 
-        return response()->json([ 'data' => $data, 'info' => '', 'status' => 1], 201);
+        return response()->json(['data' => $data, 'info' => '', 'status' => 1], 201);
     }
 
     public function notice()
     {
         $notice = Config::where('id', '>', Config::POINTS_ID)->orderBy('id', 'desc')->first();
         if ($notice) {
-            $notice['short_value'] = mb_substr($notice['value'], 0, 20, 'UTF-8') .'...';
-            return response()->json([ 'data' => $notice, 'info' => '', 'status' => 1], 201);
+            $notice['short_value'] = mb_substr($notice['value'], 0, 20, 'UTF-8') . '...';
+            return response()->json(['data' => $notice, 'info' => '', 'status' => 1], 201);
         }
-        return response()->json([ 'data' => [], 'info' => '', 'status' => 0], 403);
+        return response()->json(['data' => [], 'info' => '', 'status' => 0], 403);
     }
 }

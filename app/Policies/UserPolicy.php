@@ -45,9 +45,8 @@ class UserPolicy
         return $currentUser->id == $user->id;
     }
 
-    #计算兑换积分
+    //计算兑换积分
     public function recharge(User $user, Order $orders)
     {
-
     }
 }
