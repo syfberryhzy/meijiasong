@@ -117,7 +117,7 @@ class OrderController extends Controller
                 return '<b>订单金额：</b> ' . $this->total .'<br/>'.'<b>抵扣积分：</b> ' . $dis .'<br/>'.'<b>抵扣金额：</b> ' . $discount .'<br/><b>支付金额：</b> ' . $this->total .'<br/>';
             });
             $grid->column('order_receiver', '收货信息')->display(function ($form) {
-                return '<b>收货人：</b>' . $this->receiver .'<br/>'.'<b>电  话 : </b>' . $this->phone .'<br/>'.'<b>地   址 : </b>' . $this->address .'<br/>';
+                return '<b>收货人：</b>' . $this->receiver .'<br/>'.'<b>电  话 : </b>' . $this->phone .'<br/>'.'<b>地   址 : </b>' . $this->address .'<br/>' . '<b>地   图 : </b><a href="https://apis.map.qq.com/uri/v1/routeplan?type=bus&from=美家送&fromcoord=30.857200,120.084570&to=' . $this->address . '&tocoord=' . round($this->latitude, 4) . ',' . round($this->longitude, 4) . '&policy=1&referer=myapp"  target=_blank>点击查看</a><br/>';
             });
 
             $grid->column('items', '采购详情')->expand(function () {
@@ -175,8 +175,6 @@ class OrderController extends Controller
                 });
             }, '用户名');
             $filter->where(function ($query) {
-                $input = $this->input;
-                $query->where('receiver', 'like', "%{$input}%")->orwhere('phone', 'like', "%{$input}%")->orwhere('address', 'like', "%{$input}%");
             }, '收货人或电话或收货地址');
             $filter->equal('pay_id', '支付方式')->select(Pay::all()->pluck('name', 'id'));
             $filter->between('created_at', '创建时间')->datetime();

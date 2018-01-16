@@ -5,12 +5,12 @@ return [
     /*
      * Laravel-admin name.
      */
-    'name'      => '美加送后台',
+    'name'      => '美家送后台',
 
     /*
      * Logo in admin panel header.
      */
-    'logo'      => '<b>美加送</b> 后台管理',
+    'logo'      => '<b>美家送</b> 后台管理',
 
     /*
      * Mini-logo in admin panel header.

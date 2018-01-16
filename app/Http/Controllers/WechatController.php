@@ -56,11 +56,13 @@ class WechatController extends Controller
 
         //送货信息
         if ($type == 2) {
-             $address = $user->defaultAddress()->only(['receiver', 'phone', 'areas', 'details']);
+             $address = $user->defaultAddress()->only(['receiver', 'phone', 'areas', 'details', 'latitude', 'longitude']);
              $data['receiver'] = $address['receiver'];
              $data['phone'] = $address['phone'];
              $data['address'] = $address['areas'] . $address['details'];
-             $data['remarks'] = $request->remarks;//备注
+	     $data['remarks'] = $request->remarks;//备注
+	     $data['latitude'] = $address['latitude'];
+	     $data['longitude'] = $address['longitude'];
         }
         $data['out_trade_no'] = date("YmdHis") . rand(1000, 9999);
         $data['prepay_id'] = $pay_id == 2 ? $this->getPrepayId($request, $data['out_trade_no']) : '';

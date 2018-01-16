@@ -1,6 +1,6 @@
 <!-- Main Header -->
 <header class="main-header">
-    <audio src="/20.wav" id="audio-tips">
+    <audio src="/order.mp3" id="audio-tips">
     您的浏览器不支持 audio 标签。
     </audio>
     <!-- Logo -->

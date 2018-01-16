@@ -76,7 +76,7 @@ class OrderItemController extends Controller
             // dd($grid, request()->path());
             $grid->id('ID')->sortable();
             $grid->order_id('订单编号');
-            $grid->column('user.name', '用户名');
+	    //$grid->column('order', '用户名');
             $grid->name('商品名称 [属性]')->display(function ($name) {
                 return '<b>'. $name . '</b> [ ' . $this->attributes . ' ]';
             });
